@@ -1,22 +1,22 @@
 package unionfind
 
-type UnionFind struct {
-	Parent []int
+type RankUnionFind struct {
+	Parent []int // 可以理解成下标i的最终父节点就是 Parent[i]
 	Rank   []int
 	Count  int
 }
 
-func NewUnionFind(totalNodes int) *UnionFind {
+func NewRankUnionFind(totalNodes int) *RankUnionFind {
 	p := make([]int, totalNodes)
 	r := make([]int, totalNodes)
 	for i := 0; i < totalNodes; i++ {
 		p[i] = i
 		r[i] = 1
 	}
-	return &UnionFind{Parent: p, Rank: r, Count: totalNodes}
+	return &RankUnionFind{Parent: p, Rank: r, Count: totalNodes}
 }
 
-func (u *UnionFind) Find(x int) int {
+func (u *RankUnionFind) Find(x int) int {
 	if u.Parent[x] != x {
 		// 路径压缩
 		u.Parent[x] = u.Find(u.Parent[x])
@@ -24,8 +24,7 @@ func (u *UnionFind) Find(x int) int {
 	return u.Parent[x]
 }
 
-// 把x y 弄到一个集合中去
-func (u *UnionFind) Union(x, y int) {
+func (u *RankUnionFind) Union(x, y int) {
 	xRoot := u.Find(x)
 	yRoot := u.Find(y)
 
@@ -43,6 +42,6 @@ func (u *UnionFind) Union(x, y int) {
 	}
 }
 
-func (u *UnionFind) IsConnected(x, y int) bool {
+func (u *RankUnionFind) IsConnected(x, y int) bool {
 	return u.Find(x) == u.Find(y)
 }
