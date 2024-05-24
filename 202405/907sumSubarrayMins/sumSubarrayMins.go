@@ -20,6 +20,7 @@ func sumSubarrayMins2(arr []int) int {
 	st := make([]int, 0)
 	st = append(st, -1)
 	// 找右边界，严格小于等于的边界,也就是说找到等于之后就不向右
+	// 对于i,找右边第一个小于等于arr[i]的下标
 	for i, ch := range arr {
 		for len(st) > 1 && arr[st[len(st)-1]] >= ch {
 			st = st[:len(st)-1]
@@ -48,12 +49,15 @@ func sumSubarrayMins2(arr []int) int {
 func sumSubarrayMins(arr []int) int {
 	base := int(math.Pow(10, 9)) + 7
 	right := make([]int, len(arr))
+	left := make([]int, len(arr))
+	for i := range arr {
+		right[i] = len(arr)
+		left[i] = -1
+	}
 
 	st := make([]int, 0)
-	st = append(st, -1)
-
 	for i, ch := range arr {
-		for len(st) > 1 && ch <= arr[st[len(st)-1]] {
+		for len(st) > 0 && ch <= arr[st[len(st)-1]] {
 			right[st[len(st)-1]] = i
 			st = st[:len(st)-1]
 		}
@@ -61,17 +65,13 @@ func sumSubarrayMins(arr []int) int {
 	}
 
 	st = st[:0]
-	st = append(st, len(arr))
-	left := make([]int, len(arr))
 	for i := len(arr) - 1; i >= 0; i-- {
-		for len(st) > 1 && arr[i] < arr[st[len(st)-1]] {
+		for len(st) > 0 && arr[i] < arr[st[len(st)-1]] {
 			left[st[len(st)-1]] = i
 			st = st[:len(st)-1]
 		}
 		st = append(st, i)
 	}
-
-	fmt.Println("left", left, "right", right)
 	ans := 0
 	for i, ch := range arr {
 		ans += ch * (i - left[i]) * (right[i] - i)
