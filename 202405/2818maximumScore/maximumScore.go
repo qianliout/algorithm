@@ -52,12 +52,15 @@ func maximumScore(nums []int, k int) int {
 
 	ans := 1
 	for _, i := range ids {
+		// 经过上面的排序，此时 i就是先选取nums中最大元素的下标
 		tot := (i - left[i]) * (right[i] - i)
 		if tot >= k {
 			ans = (ans * pow(nums[i], k, base, mem)) % base
 			break
 		}
 		ans = (ans * pow(nums[i], tot, base, mem)) % base
+		// 这里为啥要减 tot 呢，
+		// 因为 这里 tot 是指以nums[i]做为子数组的最大元素所选取的子数组的个数
 		k -= tot // 更新剩余操作次数
 	}
 	return ans
@@ -65,7 +68,7 @@ func maximumScore(nums []int, k int) int {
 
 func genPrimes() []int {
 	mx := int(math.Pow(10, 5))
-	// mx := 100
+	// primes[i]=k 表示 i 这个数可以分解成 k个不同的质数
 	primes := make([]int, mx+1)
 	for i := 2; i <= mx; i++ {
 		if primes[i] == 0 {
@@ -77,28 +80,10 @@ func genPrimes() []int {
 	return primes
 }
 
-// 算x 的 y 次方
-func pow(x, y int, base int, mem map[int]int) int {
-	if y == 0 {
-		return 1
+func pow(x, n int, base int, mem map[int]int) int {
+	if va, ok := mem[n]; ok {
+		return va
 	}
-	if y == 1 {
-		return x
-	}
-	// if va, ok := mem[y]; ok {
-	// 	return va
-	// }
-	n := 0
-	if y&1 == 0 {
-		n = pow(x, y>>1, base, mem) * pow(x, y>>1, base, mem)
-	} else {
-		n = pow(x, y>>1, base, mem) * pow(x, y>>1, base, mem) * x
-	}
-	mem[y] = n % base
-	return n % base
-}
-
-func pow2(x, n int, base int, mem map[int]int) int {
 	res := 1
 	for ; n > 0; n /= 2 {
 		if n%2 > 0 {
