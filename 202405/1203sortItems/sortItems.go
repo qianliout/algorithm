@@ -27,29 +27,28 @@ func sortItems(n int, m int, group []int, beforeItems [][]int) []int {
 		}
 	}
 	// 建图，本次使用邻接表
-	groupObj := make([][]int, m)
+	// 这里的 m 值是一个易错点，上面对元数据做了处理，没有对应组的，我们认为他自成一个组，且是比原组数大的数，所以到这里后，组的个数应该是变动之后的数
+	groupObj := make([][]int, m) // 要理解邻接表的保存数据的方法
 	itemObj := make([][]int, n)
 	// 入度，理解成项目的依赖
 	groupIn := make([]int, m)
 	itemIn := make([]int, n)
-	// 项目
-	for i := 0; i < n; i++ {
-		for _, j := range beforeItems[i] {
-			itemObj[j] = append(itemObj[j], i)
-			itemIn[i]++
+	// 对项目建图
+	for ite := 0; ite < n; ite++ {
+		for _, breIte := range beforeItems[ite] {
+			itemObj[breIte] = append(itemObj[breIte], ite)
+			itemIn[ite]++
 		}
 	}
-	// 组
-	for i, ch := range group {
-		if ch >= m {
-			continue
-		}
-		befItem := beforeItems[i] //
+	// 对组建图
+	for i, curGroup := range group {
+		befItem := beforeItems[i]
 		for _, bi := range befItem {
 			befGroup := group[bi]
-			if befGroup != ch {
-				groupObj[befGroup] = append(groupObj[befGroup], ch)
-				groupIn[ch]++
+			// 自已不能依赖自己
+			if befGroup != curGroup { // 这里的判断有点难想，和上面对数据的处理有关
+				groupObj[befGroup] = append(groupObj[befGroup], curGroup)
+				groupIn[curGroup]++
 			}
 		}
 	}
