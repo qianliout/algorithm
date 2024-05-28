@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"math/bits"
 )
 
 func main() {
 
+	fmt.Println(bits.Len(7))
+	fmt.Println(bits.Len(8))
 }
 
 type TreeAncestor struct {
@@ -15,10 +18,13 @@ type TreeAncestor struct {
 }
 
 func Constructor(n int, parent []int) TreeAncestor {
-	dep := bits.Len(uint(n)) // n有多少位
+	dep := bits.Len(uint(n)) // n有多少位,也就是说要处理多少层,极端情况下 parent 是一个链表，会跳多少次
+
+	// pa[i][j] 表示 i 这个元素的，第 j 层，也就是第 j 个祖先节点
 	pa := make([][]int, n)
 	for i, p := range parent {
 		pa[i] = make([]int, dep)
+		// 第0个 祖先节点就是父节点
 		pa[i][0] = p
 	}
 
