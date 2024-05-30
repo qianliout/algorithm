@@ -53,6 +53,7 @@ func dijkstra(g [][]neighbor, start int, n int) []int {
 	for hp.Len() > 0 {
 		po := heap.Pop(&hp).(*IntItem)
 		// 这一步可以优化速度
+		// 说明这个 PO是之前加入的，但是 后上一步的操作中，dis[po.Value]已被其他邻居更新了，所以这个距离就是一个无效的距离了
 		if po.Priority > dis[po.Value] {
 			continue
 		}
