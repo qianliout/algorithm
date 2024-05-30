@@ -36,7 +36,7 @@ func (this *Graph) ShortestPath(node1 int, node2 int) int {
 func GenG(edges [][]int, n int) [][]int {
 	// 下标统一都做减一操作
 	// 注意点1：这里最好不定义成 math.MaxInt32,因为下面有加法，可能会有溢出
-	inf := math.MaxInt32 / 10
+	inf := math.MaxInt32
 	g := make([][]int, n)
 	for i := range g {
 		g[i] = make([]int, n)
@@ -54,7 +54,7 @@ func GenG(edges [][]int, n int) [][]int {
 func GetMin(g [][]int, n, start, end int) int {
 	// 下标统一都做减一操作
 	// 注意点1：这里最好不定义成 math.MaxInt32,因为下面有加法，可能会有溢出
-	inf := math.MaxInt32 / 10
+	inf := math.MaxInt32
 	dis := make([]int, n)
 	for i := range dis {
 		dis[i] = inf
