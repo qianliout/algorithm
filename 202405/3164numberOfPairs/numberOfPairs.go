@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 )
 
 func main() {
@@ -43,7 +44,7 @@ func numberOfPairs2(nums1 []int, nums2 []int, k int) int64 {
 	return int64(ans)
 }
 
-func numberOfPairs(nums1 []int, nums2 []int, k int) int64 {
+func numberOfPairs3(nums1 []int, nums2 []int, k int) int64 {
 	cnt := make(map[int]int) // 因子的个数
 	ans := 0
 	for _, ch := range nums1 {
@@ -59,6 +60,32 @@ func numberOfPairs(nums1 []int, nums2 []int, k int) int64 {
 	}
 	for _, ch := range nums2 {
 		ans += int(cnt[ch])
+	}
+	return int64(ans)
+
+}
+
+func numberOfPairs(nums1 []int, nums2 []int, k int) int64 {
+	cnt1 := make(map[int]int)
+	for _, ch := range nums1 {
+		if ch%k != 0 {
+			continue
+		}
+		cnt1[ch/k]++
+	}
+	// 如果 nums2中没有重复元素，这一步可以不做,直接遍历 nums2
+	cnt2 := make(map[int]int)
+	for _, ch := range nums2 {
+		cnt2[ch]++
+	}
+	u := slices.Max(nums1) / k
+	ans := 0
+	for nu, v := range cnt2 {
+		s := 0
+		for i := nu; i <= u; i = i + nu {
+			s += cnt1[i]
+		}
+		ans += s * v
 	}
 	return int64(ans)
 }
