@@ -38,8 +38,8 @@ func palindromePartition(s string, k int) int {
 			if j == 1 {
 				dp[i][j] = change(s, 0, i-1)
 			} else {
-				for k := j - 1; k < i; k++ {
-					dp[i][j] = min(dp[i][j], dp[k][j-1]+change(s, k, i-1))
+				for m := j - 1; m < i; m++ {
+					dp[i][j] = min(dp[i][j], dp[m][j-1]+change(s, m, i-1))
 				}
 			}
 		}
