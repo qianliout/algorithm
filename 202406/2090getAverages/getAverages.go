@@ -7,6 +7,7 @@ import (
 func main() {
 	fmt.Println(getAverages([]int{8}, 1000))
 	fmt.Println(getAverages([]int{7, 4, 3, 9, 1, 8, 5, 2, 6}, 3))
+	fmt.Println(minimumRecolors("WBBWWBBWBW", 7))
 }
 
 func getAverages(nums []int, k int) []int {
@@ -29,5 +30,28 @@ func getAverages(nums []int, k int) []int {
 		ans[i] = sub / ((k)*2 + 1)
 	}
 
+	return ans
+}
+
+func minimumRecolors(blocks string, k int) int {
+	ss := []byte(blocks)
+	n, b := len(ss), 0
+	ans := n
+	le, ri := 0, 0
+	for le <= ri && ri < n {
+		if ss[ri] == 'B' {
+			b++
+		}
+		ri++
+		for ri-le > k {
+			if ss[le] == 'B' {
+				b--
+			}
+			le++
+		}
+		if ri-le == k {
+			ans = min(ans, k-b)
+		}
+	}
 	return ans
 }
