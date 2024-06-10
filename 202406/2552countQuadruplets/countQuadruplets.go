@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	// fmt.Println(countQuadruplets([]int{1, 3, 2, 4, 5}))
+	fmt.Println(countQuadruplets([]int{1, 3, 2, 4, 5}))
 	fmt.Println(countQuadruplets([]int{2, 5, 3, 1, 4}))
 }
 
@@ -36,17 +36,25 @@ func countQuadruplets(nums []int) int64 {
 		// 比如 [1,2,3,4],当枚举到4的时候，我们就知道，对于1，2，3来说，后面肯定有一个4
 		great[k] = append([]int{}, great[k+1]...)
 		// 由数据范围决定了，可以这样写
-		// 说明，对于小于等于 nums[k]-1的数（假如记为 x），就有一个比x大的数了
-		for x := nums[k+1] - 1; x > 0; x-- {
+		// 说明，对于小于等于 nums[k+1]-1的数（假如记为 x），就有一个比x大的数了
+		for x := 1; x < nums[k+1]; x++ {
 			great[k][x]++ // x < nums[k+1]，对于 x，大于它的数的个数 +1
 		}
+		// 下面这样写也是对的，但是没有上面这写好理解
+		// for x := nums[k+1] - 1; x > 0; x-- {
+		// 	great[k][x]++ // x < nums[k+1]，对于 x，大于它的数的个数 +1
+		// }
 	}
 	// 同理维护 比j是小的数
 	for j := 1; j <= n-2; j++ {
 		less[j] = append([]int{}, less[j-1]...)
-		for x := nums[j-1] + 1; x <= n; x++ {
+		for x := n; x > nums[j-1]; x-- {
 			less[j][x]++
 		}
+
+		// for x := nums[j-1] + 1; x <= n; x++ {
+		// 	less[j][x]++
+		// }
 	}
 
 	ans := 0
