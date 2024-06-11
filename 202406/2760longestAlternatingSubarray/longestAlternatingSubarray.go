@@ -18,5 +18,6 @@ func longestAlternatingSubarray(nums []int, threshold int) int {
 		}
 		ans = max(ans, i-start)
 	}
+
 	return ans
 }
