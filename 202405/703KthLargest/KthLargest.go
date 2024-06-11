@@ -12,13 +12,13 @@ func main() {
 }
 
 type KthLargest struct {
-	MinHeap MinHeap
+	MinHeap MaxHeap
 	K       int
 }
 
 func Constructor(k int, nums []int) KthLargest {
 	kk := KthLargest{
-		MinHeap: make(MinHeap, 0),
+		MinHeap: make(MaxHeap, 0),
 		K:       k,
 	}
 
