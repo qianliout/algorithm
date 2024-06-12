@@ -9,7 +9,7 @@ func main() {
 	fmt.Println(maxNonDecreasingLength([]int{11, 7, 7, 9}, []int{19, 19, 1, 7}))
 }
 
-func maxNonDecreasingLength(nums1 []int, nums2 []int) int {
+func maxNonDecreasingLength2(nums1 []int, nums2 []int) int {
 	if len(nums1) == 0 || len(nums2) == 0 {
 		return 0
 	}
@@ -36,5 +36,38 @@ func maxNonDecreasingLength(nums1 []int, nums2 []int) int {
 		}
 	}
 	ans = max(ans, cnt)
+	return ans
+}
+func maxNonDecreasingLength(nums1 []int, nums2 []int) int {
+	n := len(nums1)
+	nums := [2][]int{nums1, nums2}
+	var dfs func(i, j int) int
+	mem := make([][]int, n)
+	for i := range mem {
+		mem[i] = make([]int, 2)
+	}
+	dfs = func(i, j int) int {
+		if i <= 0 {
+			return 1
+		}
+		res := 1
+		if mem[i][j] > 0 {
+			return mem[i][j]
+		}
+		if nums1[i-1] <= nums[j][i] {
+			res = max(res, dfs(i-1, 0)+1)
+		}
+		if nums2[i-1] <= nums[j][i] {
+			res = max(res, dfs(i-1, 1)+1)
+		}
+		mem[i][j] = res
+		return res
+	}
+	ans := 0
+	for j := 0; j < 2; j++ {
+		for i := 0; i < n; i++ {
+			ans = max(ans, dfs(i, j))
+		}
+	}
 	return ans
 }
