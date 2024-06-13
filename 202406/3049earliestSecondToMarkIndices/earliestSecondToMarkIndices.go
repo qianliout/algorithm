@@ -70,17 +70,17 @@ func earliestSecondToMarkIndices(nums []int, changeIndices []int) int {
 	// return ans
 
 	// 二分
-	le, ri := 0, m
+	le, ri := n, m+1
 
 	for le < ri {
-		mid := le + (ri-le+1)/2
-		if mid < m && !check(mid) {
-			le = mid
+		mid := le + (ri-le)/2
+		if mid >= n && mid < m+1 && check(mid) {
+			ri = mid
 		} else {
-			ri = mid - 1
+			le = mid + 1
 		}
 	}
-	if le >= m {
+	if le > m {
 		return -1
 	}
 	return le

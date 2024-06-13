@@ -22,7 +22,7 @@ func main() {
 
 请你返回范围 [1, m] 中的一个整数，表示最优操作下，标记 nums 中 所有 下标的 最早秒数 ，如果无法标记所有下标，返回 -1 。
 */
-func earliestSecondToMarkIndices(nums []int, changeIndices []int) int {
+func earliestSecondToMarkIndices2(nums []int, changeIndices []int) int {
 	n, m := len(nums), len(changeIndices)
 	if n > m {
 		return -1
@@ -61,6 +61,62 @@ func earliestSecondToMarkIndices(nums []int, changeIndices []int) int {
 		return true
 	}
 	le := n + sort.Search(m+1-n, check)
+	if le > m {
+		return -1
+	}
+	return le
+}
+
+func earliestSecondToMarkIndices(nums []int, changeIndices []int) int {
+	n, m := len(nums), len(changeIndices)
+	if n > m {
+		return -1
+	}
+	var check func(mx int) bool
+	check = func(mx int) bool {
+		last := make([]int, n)
+		for i := range last {
+			last[i] = -1
+		}
+
+		for i, v := range changeIndices[:mx] {
+			last[v-1] = i // 课程的考试时间，考试时间越晚更好，
+		}
+		for _, v := range last {
+			if v == -1 { // 有课程没有考试时间
+				return false
+			}
+		}
+		cnt := 0
+		for i, idx := range changeIndices[:mx] {
+			idx -= 1
+			if last[idx] == -1 {
+				return false
+			}
+			if last[idx] == i {
+				if nums[idx] > cnt {
+					return false
+				}
+				cnt -= nums[idx]
+			} else {
+				cnt++
+			}
+		}
+		return true
+	}
+
+	le, ri := n, m+1
+	// 相当于找左端点，ri 是一个不能到达的元素，这里的下标从1开始，所有 ri就是m+1
+	for le < ri {
+		mid := le + (ri-le)/2
+		if le >= n && le < m+1 && check(mid) {
+			ri = mid
+		} else {
+			le = mid + 1
+		}
+	}
+
+	// le := n + sort.Search(m+1-n, check)
 	if le > m {
 		return -1
 	}
