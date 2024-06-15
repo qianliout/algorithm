@@ -52,5 +52,11 @@ func maximumPopulation(logs [][]int) int {
 }
 
 func countTestedDevices(batteryPercentages []int) int {
-
+	dec := 0
+	for _, ch := range batteryPercentages {
+		if ch > dec {
+			dec++
+		}
+	}
+	return dec
 }
