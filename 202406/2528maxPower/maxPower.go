@@ -81,7 +81,7 @@ func maxPower(stations []int, r int, k int) int64 {
 
 	check = func(mi int) bool {
 		d := make([]int, n)
-		sumD := 0
+		sumD := 0 // 这里直接使用差分,不用这个变量应该怎么写呢,那就要用一个差分数组的前缀和了
 		need := 0
 		for i, ch := range initP {
 			sumD += d[i]
