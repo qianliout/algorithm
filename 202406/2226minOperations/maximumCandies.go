@@ -64,3 +64,21 @@ func f(nums []int, t int) int64 {
 	}
 	return int64(cnt)
 }
+
+func semiOrderedPermutation(nums []int) int {
+	a, b, n := 0, 0, len(nums)
+	for i := 0; i < n; i++ {
+		if nums[i] == 1 {
+			a = i
+		}
+		if nums[i] == n {
+			b = i
+		}
+	}
+	ans := a + n - b - 1
+	if a > b {
+		ans -= 1
+	}
+	return ans
+
+}
