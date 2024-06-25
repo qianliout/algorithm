@@ -6,27 +6,29 @@ import (
 
 func main() {
 	fmt.Println(maxTurbulenceSize([]int{9, 4, 2, 10, 7, 8, 8, 1, 9}))
+	fmt.Println(maxTurbulenceSize([]int{100}))
 }
 
 func maxTurbulenceSize(arr []int) int {
 	n := len(arr)
-	dp1 := make([]int, n) // 偶数
-	dp2 := make([]int, n) // 奇数
-
+	// up 表示以 i 结尾，并且 arr[i-1]<arr[i]的最子数组的长度
+	up := make([]int, n)
+	// down 表示以 i 结尾，并且 arr[i-1]>arr[i]的最子数组的长度
+	down := make([]int, n)
 	for i := 0; i < n; i++ {
-		if i&1 == 0 {
-			dp1[i] = 1
-		} else {
-			dp2[i] = 1
-		}
+		up[i] = 1
+		down[i] = 1
 	}
-
-	ans := 0
+	ans := 1
 	for i := 1; i < n; i++ {
-		if i&1 == 0 && arr[i] < arr[i-1] {
-
+		if arr[i-1] < arr[i] {
+			up[i] = down[i-1] + 1
 		}
-
+		if arr[i-1] > arr[i] {
+			down[i] = up[i-1] + 1
+		}
+		ans = max(ans, up[i], down[i])
 	}
+
 	return ans
 }
