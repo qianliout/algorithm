@@ -67,20 +67,57 @@ func largest1BorderedSquare1(matrix [][]int) int {
 }
 
 func largest1BorderedSquare(matrix [][]int) int {
-	sh, he := len(matrix), len(matrix[0])
-	dsh, dhe := make([][]int, sh), make([][]int, he)
-	for col := 0; col < sh; col++ {
-		dsh[col] = make([]int, sh+1)
+	n, m := len(matrix), len(matrix[0])
+	dx := make([][]int, n+1)
+	dy := make([][]int, n+1)
+	for i := 0; i < len(dx); i++ {
+		dx[i] = make([]int, m+1)
 	}
-	for row := 0; row < he; row++ {
-		dhe[row] = make([]int, he+1)
+	for i := 0; i < len(dy); i++ {
+		dy[i] = make([]int, m+1)
 	}
 
-	for col := 1; col < sh; col++ {
-		for row := 1; row < he; row++ {
-			dsh[1]
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= m; j++ {
+			dx[i][j] = dx[i][j-1] + matrix[i-1][j-1]
 		}
 	}
 
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= m; j++ {
+			dy[i][j] = dy[i-1][j] + matrix[i-1][j-1]
+		}
+	}
+	ans := 0
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= m; j++ {
+			if matrix[i-1][j-1] == 0 {
+				continue
+			}
+			with := 0
+			for y1 := m; y1 >= j; y1-- {
+				with = y1 - j + 1
+				if with <= ans {
+					break
+				}
+				if i+y1-j >= len(dy) || i+y1-j >= len(dx) {
+					continue
+				}
+				if dx[i][y1]-dx[i][j-1] != with {
+					continue
+				}
+				if dx[i+y1-j][y1]-dx[i+y1-j][j-1] != with {
+					continue
+				}
+				if dy[i+y1-j][j]-dy[i-1][j] != with {
+					continue
+				}
+				if dy[i+y1-j][y1]-dy[i-1][y1] != with {
+					continue
+				}
+				ans = max(ans, with)
+			}
+		}
+	}
 	return ans * ans
 }
