@@ -8,6 +8,7 @@ import (
 func main() {
 	fmt.Println(maximumSum([]int{1, -2, 0, 3}))
 	fmt.Println(maximumSum([]int{1, -2, -2, 3}))
+	fmt.Println(maximumSum([]int{-1, -1, -1, -1}))
 	fmt.Println(maximumSum([]int{2, 1, -2, -5, -2}))
 }
 
@@ -26,7 +27,7 @@ func maximumSum(nums []int) int {
 	// del表示是否删除一个元素
 	dfs = func(i int, del int) int {
 		if i < 0 || i >= n {
-			return 0
+			return inf
 		}
 		if mem[i][del] > inf {
 			return mem[i][del]
@@ -51,7 +52,7 @@ func maximumSum(nums []int) int {
 
 	ans := inf
 	for i := 0; i < n; i++ {
-		ans = max(ans, max(dfs(n-1, 0), dfs(n-1, 1)))
+		ans = max(ans, max(dfs(i, 0), dfs(i, 1)))
 	}
 	return ans
 }
