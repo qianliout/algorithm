@@ -8,15 +8,18 @@ func main() {
 }
 
 func getMaximumGold(grid [][]int) int {
-	var dfs func(visit [][]bool, i, j int) int
-
+	var dfs func(i, j int) int
+	m, n := len(grid), len(grid[0])
+	visit := make([][]bool, m)
+	for i := range visit {
+		visit[i] = make([]bool, n)
+	}
 	dirs := [][]int{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
-	dfs = func(visit [][]bool, i, j int) int {
+	dfs = func(i, j int) int {
 		if !in(grid, i, j) {
 			return 0
 		}
 		ans := grid[i][j]
-		visit[i][j] = true
 		for _, dir := range dirs {
 			x, y := i+dir[0], j+dir[1]
 			if !in(grid, x, y) {
@@ -26,20 +29,21 @@ func getMaximumGold(grid [][]int) int {
 				continue
 			}
 			visit[x][y] = true
-			ans = max(ans, grid[i][j]+dfs(visit, x, y))
+			ans = max(ans, grid[i][j]+dfs(x, y))
+			visit[x][y] = false
 		}
 		return ans
 	}
 	mx := 0
-	m, n := len(grid), len(grid[0])
 
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			if grid[i][j] <= 0 {
 				continue
 			}
-			visit := genVisit(m, n)
-			res := dfs(visit, i, j)
+			visit[i][j] = true
+			res := dfs(i, j)
+			visit[i][j] = false
 			mx = max(mx, res)
 		}
 	}
