@@ -6,12 +6,19 @@ func main() {
 	fmt.Println(maxLength([]string{"cha", "r", "act", "ers"}))
 }
 
+// 这样写为啥是错的，有问题，不知道是啥原因
 func maxLength(arr []string) int {
-	n := len(arr)
-	nums := make([]int, n)
+	nums := make([]int, 0)
+	str := make([]string, 0)
 	for i := range arr {
-		nums[i] = gen(arr[i])
+		a, b := gen(arr[i])
+		if b {
+			nums = append(nums, a)
+			str = append(str, arr[i])
+		}
 	}
+	arr = str
+	n := len(arr)
 	ans := 0
 	var dfs func(pre int, cnt int)
 	visit := make([]bool, n)
@@ -24,19 +31,24 @@ func maxLength(arr []string) int {
 			if pre&nums[start] != 0 {
 				continue
 			}
-			pre = pre | nums[start]
 			ans = max(ans, cnt+len(arr[start]))
-			dfs(pre, cnt+len(arr[start]))
+			dfs(pre|nums[start], cnt+len(arr[start]))
+			visit[start] = false
 		}
 	}
-	dfs(0, 0)
+	for i := 0; i < n; i++ {
+		dfs(0, 0)
+	}
 	return ans
 }
 
-func gen(word string) int {
+func gen(word string) (int, bool) {
 	ans := 0
 	for _, ch := range word {
+		if ans&(1<<(int(ch)-'a')) != 0 {
+			return 0, false
+		}
 		ans = ans | 1<<(int(ch)-'a')
 	}
-	return ans
+	return ans, true
 }
