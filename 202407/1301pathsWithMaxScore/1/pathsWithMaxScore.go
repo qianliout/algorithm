@@ -33,6 +33,9 @@ func pathsWithMaxScore(board []string) []int {
 		if grid[i][j] == 'X' {
 			return 0
 		}
+		if i == m-1 && j == n-1 {
+			return 0
+		}
 		if mem[i][j] != -1 {
 			return mem[i][j]
 		}
