@@ -18,60 +18,83 @@ func pathsWithMaxScore(board []string) []int {
 		grid[i] = []byte(board[i])
 	}
 	n := len(board[0])
-	var dfs func(i, j, s int)
-	mem := make([][]int, m)
-	for i := range mem {
-		mem[i] = make([]int, n)
-		for j := range mem[i] {
-			mem[i][j] = -1
-		}
+	dist := make([][]int, m)
+	for i := range dist {
+		dist[i] = make([]int, n)
 	}
 
-	dfs = func(i, j, s int) {
+	dirs := [][]int{{1, 0}, {0, 1}, {1, 1}}
+	// 求出每个点的最大分数
+	var dfs1 func(i, j, s int)
+	dfs1 = func(i, j, s int) {
 		if !in(m, n, i, j) {
 			return
 		}
-		if grid[i][j] == 'X' {
+		if i == m-1 && j == m-1 {
+			dist[i][j] = max(dist[i][j], s)
 			return
 		}
-		mem[i][j] = max(mem[i][j], s)
-		a := 0
-		if grid[i][j] >= '0' && grid[i][j] <= '9' {
-			a = int(grid[i][j] - '0')
+		tem := 0
+		if i == 0 && j == 0 {
+			tem = 0
+		} else if grid[i][j] == 'X' {
+			// 按递归的逻辑是不会有这种情况的
+			return
+		} else {
+			tem = int(grid[i][j] - '0')
 		}
-		dfs(i-1, j, s+a)
-		dfs(i, j-1, s+a)
-		dfs(i-1, j-1, s+a)
-	}
-	dfs(m-1, n-1, 0)
+		if dist[i][j] >= s+tem && dist[i][j] > 0 {
+			return // 剪枝
+		}
 
-	var path func(i, j int)
-	pathCnt := 0
-	path = func(i, j int) {
+		dist[i][j] = s + tem
+		for _, d := range dirs {
+			x, y := i+d[0], j+d[1]
+			if in(m, n, x, y) && grid[x][y] != 'X' {
+				dfs1(x, y, s+tem)
+			}
+		}
+	}
+	// 找得分最少，从最后向前找,和题意一样
+	dfs1(0, 0, 0)
+
+	var dfs2 func(i, j int) int
+	path := make([][]int, m)
+	for i := range path {
+		path[i] = make([]int, n)
+		for j := range path[i] {
+			path[i][j] = -1
+		}
+	}
+	dfs2 = func(i, j int) int {
+		if i == m-1 && j == n-1 {
+			return 1
+		}
 		if !in(m, n, i, j) {
-			return
+			return 0
 		}
-		a := 0
-		if grid[i][j] >= '0' && grid[i][j] <= '9' {
-			a = int(grid[i][j] - '0')
+		if path[i][j] != -1 {
+			return path[i][j]
 		}
-		s := mem[i][j]
-		if in(m, n, i-1, j) && mem[i-1][j]+a == s {
-			path(i-1, j)
-			pathCnt++
+		res := 0
+		for _, d := range dirs {
+			x, y := i+d[0], j+d[1]
+			if in(m, n, x, y) && grid[x][y] != 'X' {
+				nex := 0
+				if grid[x][y] != 'S' {
+					nex = int(grid[x][y] - '0')
+				}
+				if dist[i][j]+nex == dist[x][y] {
+					res += dfs2(x, y)
+				}
+			}
 		}
-		if in(m, n, i, j-1) && mem[i][j-1]+a == s {
-			pathCnt++
-			path(i, j-1)
-		}
-		if in(m, n, i-1, j-1) && mem[i-1][j-1]+a == s {
-			pathCnt++
-			path(i, j-1)
-		}
+		path[i][j] = res
+		return res
 	}
-	path(m-1, n-1)
+	pathCnt := dfs2(0, 0)
 
-	return []int{mem[0][0] % mod, pathCnt / 2}
+	return []int{dist[m-1][n-1], pathCnt % mod}
 }
 
 func in(m, n, i, j int) bool {

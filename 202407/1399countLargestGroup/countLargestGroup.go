@@ -10,33 +10,32 @@ func main() {
 
 func countLargestGroup(n int) int {
 	rec := make(map[int]int)
-	maxCount := 0
 	for i := 1; i <= n; i++ {
 		key := help(i)
 		rec[key]++
-
 	}
+
+	maxCount := 0
+	maxValue := -1
+	cnt2 := make(map[int]int)
 	for _, count := range rec {
-		if count > maxCount {
-			maxCount = count
-		}
+		cnt2[count]++
 	}
 
 	// 统计最大计数出现的次数
-	actualMaxCount := 0
-	for _, count := range rec {
-		if count == maxCount {
-			actualMaxCount++
+	for k, count := range cnt2 {
+		if k > maxCount {
+			maxCount = k
+			maxValue = count
 		}
 	}
-
-	return actualMaxCount
+	return maxValue
 }
 
 func help(num int) int {
 	ans := 0
 	for num > 0 {
-		ans += ans % 10
+		ans += num % 10
 		num = num / 10
 	}
 	return ans

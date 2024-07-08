@@ -11,7 +11,6 @@ func main() {
 	fmt.Println(root.Val)
 }
 
-// 这种方式有错，原因是，同层节点时，挂载的父节点会不一样
 func recoverFromPreorder(traversal string) *TreeNode {
 	return nil
 }

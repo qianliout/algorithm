@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/bits"
 )
 
 func main() {
@@ -14,16 +15,22 @@ func main() {
 }
 
 type CombinationIterator struct {
-	Char string
+	Char []byte
 	L    int
 	Cur  int
 }
 
-// 不知道是那里不对
-
 func Constructor(characters string, combinationLength int) CombinationIterator {
+	ans := []byte(characters)
+	le, ri := 0, len(ans)-1
+	for le < ri {
+		ans[le], ans[ri] = ans[ri], ans[le]
+		le++
+		ri--
+	}
+
 	c := CombinationIterator{
-		Char: characters,
+		Char: ans,
 		L:    combinationLength,
 	}
 
@@ -33,12 +40,10 @@ func Constructor(characters string, combinationLength int) CombinationIterator {
 }
 
 func (this *CombinationIterator) Next() string {
-	for this.Cur >= 0 && countOne(this.Cur) != this.L {
+	// 这里 this.Cur>0 也可以
+	for this.Cur > 0 && bits.OnesCount(uint(this.Cur)) != this.L {
 		this.Cur--
 	}
-	// if this.Cur <= 0 {
-	// 	return ""
-	// }
 
 	ans := make([]byte, 0)
 
@@ -49,25 +54,23 @@ func (this *CombinationIterator) Next() string {
 	}
 
 	this.Cur--
-	// le, ri := 0, len(ans)-1
-	// for le < ri {
-	// 	ans[le], ans[ri] = ans[ri], ans[le]
-	// 	le++
-	// 	ri--
-	// }
+
+	le, ri := 0, len(ans)-1
+	for le < ri {
+		ans[le], ans[ri] = ans[ri], ans[le]
+		le++
+		ri--
+	}
 
 	return string(ans)
 }
 
 func (this *CombinationIterator) HasNext() bool {
-	for this.Cur > 0 {
-		if countOne(this.Cur) != this.L {
-
-			return true
-		}
+	// 这里 this.Cur>0就不行，会出错
+	for this.Cur >= 0 && bits.OnesCount(uint(this.Cur)) != this.L {
 		this.Cur--
 	}
-	return false
+	return this.Cur >= 0
 }
 
 func countOne(n int) int {
