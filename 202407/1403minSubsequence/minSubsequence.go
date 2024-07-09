@@ -9,24 +9,20 @@ func main() {
 }
 
 func minSubsequence(nums []int) []int {
+	sort.Ints(nums)
 	n := len(nums)
-	pairs := make([]pair, n)
 	sum := 0
-	for i, ch := range nums {
-		pairs = append(pairs, pair{idx: i, value: ch})
+	for _, ch := range nums {
 		sum += ch
 	}
-	sort.Slice(pairs, func(i, j int) bool { return pairs[i].value > pairs[j].value })
 	ans := make([]int, 0)
 	cnt := 0
-	for {
-		ans = append(ans, pairs[i].value)
-		cnt += pairs[i].value
-
+	for i := n - 1; i >= 0; i-- {
+		ans = append(ans, nums[i])
+		cnt += nums[i]
+		if cnt > (sum - cnt) {
+			break
+		}
 	}
-
-}
-
-type pair struct {
-	idx, value int
+	return ans
 }
