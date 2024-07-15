@@ -27,8 +27,6 @@ func minDeletions(s string) int {
 		if v != 0 {
 			set[v] = true
 		}
-
 	}
-
 	return ans
 }
