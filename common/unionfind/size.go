@@ -27,7 +27,6 @@ func (u *SizeUnionFind) Find(x int) int {
 func (u *SizeUnionFind) Union(x, y int) {
 	xRoot := u.Find(x)
 	yRoot := u.Find(y)
-	// 把低的rank赋值给高的node，这里有些不理解，
 	if xRoot != yRoot {
 
 		u.Count--
