@@ -102,3 +102,13 @@ func (d *DoubleLinkedNode) Print(str string) {
 	}
 	fmt.Println(str, "double:", res)
 }
+
+func GenListNode(nums []int) *ListNode {
+	dump := &ListNode{}
+	cur := dump
+	for _, ch := range nums {
+		cur.Next = &ListNode{Val: ch}
+		cur = cur.Next
+	}
+	return dump.Next
+}
