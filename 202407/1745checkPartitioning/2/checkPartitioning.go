@@ -23,6 +23,7 @@ func checkPartitioning(s string) bool {
 				check[j][i] = true
 				continue
 			}
+			// 这样判断会有错
 			if s[i] == s[j] && j+1 <= i-1 && check[j+1][i-1] {
 				check[j][i] = true
 			}
