@@ -24,8 +24,22 @@ func getOrder(tasks [][]int) []int {
 	at := 1
 	n := len(items)
 	ans := make([]int, 0)
-	for i, j := 0, 0; i < n; i++ {
-		if pq.Len() == 0 {
+	// for i, j := 0, 0; i < n; i++ {
+	// 	if pq.Len() == 0 {
+	// 		at = max(at, items[j].EnqueueTi)
+	// 	}
+	// 	for j < n && items[j].EnqueueTi <= at {
+	// 		heap.Push(&pq, items[j])
+	// 		j++
+	// 	}
+	// 	pop := heap.Pop(&pq).(*Item)
+	// 	ans = append(ans, pop.Idx)
+	// 	at += pop.ProcessingTi
+	// }
+	// 这样写判断会更容易理解一点
+	j := 0
+	for j < n || pq.Len() > 0 {
+		if pq.Len() == 0 && j < n {
 			at = max(at, items[j].EnqueueTi)
 		}
 		for j < n && items[j].EnqueueTi <= at {
@@ -36,6 +50,7 @@ func getOrder(tasks [][]int) []int {
 		ans = append(ans, pop.Idx)
 		at += pop.ProcessingTi
 	}
+
 	return ans
 }
 
