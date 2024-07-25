@@ -29,7 +29,7 @@ func MergeSort(nums []int) {
 	Merge(nums, mid)
 }
 
-// 原地排序，可以使用插入排序的思想
+// Merge 原地排序，可以使用插入排序的思想
 func Merge(nums []int, mid int) {
 	for i := mid; i < len(nums); i++ {
 		for j := i; j > 0; j-- {
