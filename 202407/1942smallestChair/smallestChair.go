@@ -58,7 +58,7 @@ type PriorityQueue []*pair
 
 func (pq PriorityQueue) Len() int { return len(pq) }
 
-// 这个判断是这个题目的关键
+// Less 这个判断是这个题目的关键
 func (pq PriorityQueue) Less(i, j int) bool {
 	if pq[i].at != pq[j].at {
 		return pq[i].at < pq[j].at
