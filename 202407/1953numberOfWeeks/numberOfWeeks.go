@@ -32,6 +32,6 @@ from (select player_id, min(event_date) as first_login
       from activity
       group by player_id) p
          left join activity a
-                   on p.player_id = p.player_id and datediff(a.event_date, p.first_login) = 1;
+                   on p.player_id = a.player_id and datediff(a.event_date, p.first_login) = 1;
 
 */
