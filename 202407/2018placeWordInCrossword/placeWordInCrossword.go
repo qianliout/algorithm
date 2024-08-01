@@ -28,13 +28,16 @@ func placeWordInCrossword(board [][]byte, word string) bool {
 			}
 			j0, ok1, ok2 := j, true, true
 			for ; j < n && row[j] != '#'; j++ {
+				// 相邻不能有空格，所以长度只要超过了 k就是不行的
 				if j-j0 >= k || (row[j] != ' ' && row[j] != word[j-j0]) {
 					ok1 = false // 正序不能放
 				}
+				// 倒着匹配时的下标计算：k-1 -(j-j0)
 				if j-j0 >= k || (row[j] != ' ' && row[j] != word[k-1-j+j0]) {
 					ok2 = false // 倒序不能放
 				}
 			}
+			// 题目要求是刚好放的下
 			if (ok1 || ok2) && j-j0 == k {
 				return true
 			}
