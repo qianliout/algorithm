@@ -19,7 +19,8 @@ func nodesBetweenCriticalPoints(head *ListNode) []int {
 	start := 0
 	for cur != nil && cur.Next != nil {
 		if preNode != nil && cur.Next != nil {
-			if (preNode.Val < cur.Val && cur.Val > cur.Next.Val) || (preNode.Val > cur.Val && cur.Val < cur.Next.Val) {
+			if (preNode.Val < cur.Val && cur.Val > cur.Next.Val) ||
+				(preNode.Val > cur.Val && cur.Val < cur.Next.Val) {
 				a = min(a, start)
 				b = max(b, start)
 				if pre != -1 {
