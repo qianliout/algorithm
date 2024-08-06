@@ -13,12 +13,13 @@ func rearrangeArray(nums []int) []int {
 	nums1, nums2 := make([]int, 0), make([]int, 0)
 	for _, ch := range nums {
 		if ch > 0 {
-			nums1 = append(nums, ch)
+			nums1 = append(nums1, ch)
 		} else {
 			nums2 = append(nums2, ch)
 		}
 	}
 	ans := make([]int, 0)
+
 	for i := 0; i < n/2; i++ {
 		ans = append(ans, nums1[i])
 		ans = append(ans, nums2[i])
