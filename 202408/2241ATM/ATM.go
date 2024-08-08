@@ -29,18 +29,25 @@ func (this *ATM) Deposit(banknotesCount []int) {
 
 func (this *ATM) Withdraw(amount int) []int {
 	ac := append([]int{}, this.Data...)
-	i := 0
+	i := this.N - 1
 	ans := make([]int, this.N)
-	for i < this.N {
-		for this.Price[i] <= amount {
-			ac[i]--
-			amount -= this.Price[i]
-			ans[i]++
-			continue
+	for i >= 0 {
+		if amount == 0 {
+			break
 		}
-
+		a := min(ac[i], amount/this.Price[i])
+		// for ac[i] > 0 && this.Price[i] <= amount {
+		ac[i] -= a
+		amount -= this.Price[i] * a
+		ans[i] += a
+		// }
+		i--
 	}
-	return ans
+	if amount == 0 {
+		this.Data = ac
+		return ans
+	}
+	return []int{-1}
 }
 
 // 题目要求没有这么复杂
