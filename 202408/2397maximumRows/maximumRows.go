@@ -40,7 +40,7 @@ func cal(a []int) int {
 func count(g []int, a int) int {
 	ans := 0
 	for _, c := range g {
-		if c&a <= a {
+		if c&a == c {
 			ans++
 		}
 	}
