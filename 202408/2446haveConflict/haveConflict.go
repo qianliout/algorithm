@@ -26,6 +26,7 @@ func cal(s string) int {
 	return a*60 + b
 }
 
+// 可以直接比较
 func haveConflict(event1 []string, event2 []string) bool {
 	as := event1[0]
 	ae := event1[1]
