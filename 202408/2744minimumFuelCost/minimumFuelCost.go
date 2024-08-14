@@ -1,7 +1,13 @@
 package main
 
-func main() {
+import (
+	"fmt"
+	"math"
+)
 
+func main() {
+	fmt.Println(math.MaxInt64)
+	fmt.Println(len("9223372036854775807"))
 }
 
 func minimumFuelCost(roads [][]int, seats int) int64 {
