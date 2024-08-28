@@ -17,7 +17,6 @@ func minInsertions(s string) int {
 			} else {
 				dp[i][j] = min(dp[i+1][j], dp[i][j-1]) + 1
 			}
-
 		}
 	}
 	return dp[0][n-1]
