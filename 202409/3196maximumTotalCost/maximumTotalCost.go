@@ -1,14 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"math"
 )
 
 func main() {
-
+	fmt.Println(maximumTotalCost([]int{1, -2, 3, 4}))
 }
 
-func maximumTotalCost(nums []int) int64 {
+func maximumTotalCost1(nums []int) int64 {
 	var dfs func(i, j int) int
 	n := len(nums)
 	// 是指上一数执行后，i如果拼接到上一组后， j==0 不变号，j==1变号
@@ -52,4 +53,47 @@ func maximumTotalCost(nums []int) int64 {
 	}
 	ans := dfs(0, 0)
 	return int64(ans)
+}
+
+func maximumTotalCost(nums []int) int64 {
+	var dfs func(i int) int
+	n := len(nums)
+	inf := math.MinInt64 / 2
+	mem := make([]int, n+1)
+	for i := range mem {
+		mem[i] = inf
+	}
+	dfs = func(i int) int {
+		if i < 0 {
+			return 0
+		}
+		if i == 0 {
+			return nums[0]
+		}
+
+		if mem[i] != inf {
+			return mem[i]
+		}
+		/*
+			对于长度超过 2 的子数组，可以继续分割为长度为 2 和 1 的子数组，而不改变成本之和。
+			分成长为 1 的子数组，即 a[i] 单独作为一个长为 1 的子数组，接下来需要解决的问题为：a[0] 到 a[i−1] 的最大成本和，即 dfs(i)=dfs(i−1)+a[i]。
+			分成长为 2 的子数组，即 a[i−1] 和 a[i] 作为一个长为 2 的子数组，接下来需要解决的问题为：a[0] 到 a[i−2] 的最大成本和，即 dfs(i)=dfs(i−2)+a[i−1]−a[i]。
+		*/
+		ans := max(dfs(i-1)+nums[i], dfs(i-2)+nums[i-1]-nums[i])
+		mem[i] = ans
+		return ans
+	}
+
+	return int64(dfs(n - 1))
+}
+
+func maximumTotalCost2(nums []int) int64 {
+	n := len(nums)
+	f := make([]int, n+1)
+	f[1] = nums[0]
+	for i := 1; i < n; i++ {
+		f[i+1] = max(f[i]+nums[i], f[i-1]+nums[i-1]-nums[i])
+	}
+
+	return int64(f[n])
 }
