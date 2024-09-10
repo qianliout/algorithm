@@ -20,6 +20,7 @@ func maximalPathQuality(values []int, edges [][]int, maxTime int) int {
 	dfs = func(x, sumTi, sumV int) {
 		if x == 0 {
 			ans = max(ans, sumV)
+			// 可以晚回走
 			// not return
 		}
 		for _, e := range g[x] {
