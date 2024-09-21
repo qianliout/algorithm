@@ -3,14 +3,17 @@ package main
 import (
 	"fmt"
 	"math"
+
+	. "outback/algorithm/common/strhash"
 )
 
 func main() {
-	// fmt.Println(distinctEchoSubstrings("leetcodeleetcode"))
+	fmt.Println(distinctEchoSubstrings("leetcodeleetcode"))
 	fmt.Println(distinctEchoSubstrings("leeleetleeleeleclec"))
+	fmt.Println(distinctEchoSubstrings("abcabcabc"))
 }
 
-func distinctEchoSubstrings(text string) int {
+func distinctEchoSubstrings2(text string) int {
 	n := len(text)
 	hash := make([]int64, n+1)
 	p := make([]int64, n+1)
@@ -32,6 +35,30 @@ func distinctEchoSubstrings(text string) int {
 			// right:=text[i+m,i+2m]
 			left := (hash[m+i] - hash[i]*p[m]%mod + mod) % mod
 			right := (hash[i+2*m] - hash[i+m]*p[m]%mod + mod) % mod
+			if visit[left] {
+				continue
+			}
+			if left == right {
+				visit[left] = true
+				ans++
+			}
+		}
+	}
+	return ans
+}
+
+func distinctEchoSubstrings(text string) int {
+	sh := NewStrHash(text, 27)
+	ans := 0
+	n := len(text)
+	visit := make(map[int64]bool)
+	for i := 0; i < n; i++ {
+		for m := 1; m < n; m++ {
+			if i+2*m > n {
+				break
+			}
+			left := sh.Get(i, i+m)
+			right := sh.Get(i+m, i+2*m)
 			if visit[left] {
 				continue
 			}
