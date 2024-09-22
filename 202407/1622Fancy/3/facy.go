@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	. "outback/algorithm/common/segtree"
+	. "outback/algorithm/common/segtree2"
 )
 
 func main() {
@@ -23,7 +23,8 @@ type Fancy struct {
 
 // 不使用懒更新还是会超时
 func Constructor() Fancy {
-	n := 100000
+	// n := 100000
+	n := 2
 	data := make([]int, n)
 	mod := int(math.Pow10(9) + 7)
 	tree := NewSegTree(data, mod)

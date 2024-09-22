@@ -26,7 +26,7 @@ func NewSegTree(data []int, mod int) *SegTree {
 }
 
 func (s *SegTree) Build() {
-	s.build(0, 0, s.N-1)
+	s.build(1, 1, s.N)
 }
 
 func (s *SegTree) build(no int, start, end int) {
@@ -41,7 +41,7 @@ func (s *SegTree) build(no int, start, end int) {
 }
 
 func (s *SegTree) Update(idx int, value int) {
-	s.update(0, 0, s.N-1, idx, value)
+	s.update(1, 1, s.N, idx, value)
 }
 func (s *SegTree) update(no int, start, end int, idx int, value int) {
 	if start == end {
@@ -50,19 +50,19 @@ func (s *SegTree) update(no int, start, end int, idx int, value int) {
 		return
 	}
 	mid := start + (end-start)/2
-	if start <= idx && idx <= mid {
+	if start <= idx+1 && idx+1 <= mid {
 		// 左边
-		s.update(2*no+1, start, mid, idx, value)
+		s.update(2*no, start, mid, idx, value)
 	} else {
 		// 右边
-		s.update(2*no+2, mid+1, end, idx, value)
+		s.update(2*no+1, mid+1, end, idx, value)
 	}
 	// 更新上级
-	s.Node[no] = (s.Node[2*no+1] + s.Node[2*no+2]) % s.Mod
+	s.Node[no] = (s.Node[2*no] + s.Node[2*no]) % s.Mod
 }
 
 func (s *SegTree) UpdateAdd(idx int, value int) {
-	s.updateAdd(0, 0, s.N-1, idx, value)
+	s.updateAdd(1, 1, s.N, idx, value)
 }
 func (s *SegTree) updateAdd(no int, start, end int, idx int, value int) {
 	if start == end {
@@ -73,39 +73,39 @@ func (s *SegTree) updateAdd(no int, start, end int, idx int, value int) {
 	mid := start + (end-start)/2
 	if start <= idx && idx <= mid {
 		// 左边
-		s.updateAdd(2*no+1, start, mid, idx, value)
+		s.updateAdd(2*no, start, mid, idx, value)
 	} else {
 		// 右边
-		s.updateAdd(2*no+2, mid+1, end, idx, value)
+		s.updateAdd(2*no+1, mid+1, end, idx, value)
 	}
 	// 更新上级
-	s.Node[no] = (s.Node[2*no+1] + s.Node[2*no+2]) % s.Mod
+	s.Node[no] = (s.Node[2*no] + s.Node[2*no+1]) % s.Mod
 }
 
 func (s *SegTree) UpdateMul(idx int, value int) {
-	s.updateMul(0, 0, s.N-1, idx, value)
+	s.updateMul(1, 0, s.N-1, idx, value)
 }
 func (s *SegTree) updateMul(no int, start, end int, idx int, value int) {
 	if start == end {
 		s.Data[idx] = (s.Data[idx] * value) % s.Mod
-		s.Node[no] = (s.Data[idx] * value) % s.Mod
+		s.Node[no] = (s.Node[idx] * value) % s.Mod
 
 		return
 	}
 	mid := start + (end-start)/2
 	if start <= idx && idx <= mid {
 		// 左边
-		s.updateMul(2*no+1, start, mid, idx, value)
+		s.updateMul(2*no, start, mid, idx, value)
 	} else {
 		// 右边
-		s.updateMul(2*no+2, mid+1, end, idx, value)
+		s.updateMul(2*no+1, mid+1, end, idx, value)
 	}
 	// 更新上级
-	s.Node[no] = (s.Node[2*no+1] + s.Node[2*no+2]) % s.Mod
+	s.Node[no] = (s.Node[2*no] + s.Node[2*no+1]) % s.Mod
 }
 
 func (s *SegTree) Query(left, right int) int {
-	return s.query(0, 0, s.N-1, left, right)
+	return s.query(1, 0, s.N-1, left, right)
 }
 
 func (s *SegTree) query(no int, start, end int, left, right int) int {
@@ -118,7 +118,7 @@ func (s *SegTree) query(no int, start, end int, left, right int) int {
 		return s.Node[no]
 	}
 	mid := start + (end-left)/2
-	le := s.query(no*2+1, start, mid, left, right)
+	le := s.query(no*2, start, mid, left, right)
 	ri := s.query(no*2+1, mid+1, end, left, right)
 	return le + ri
 }

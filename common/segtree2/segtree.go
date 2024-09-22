@@ -1,4 +1,4 @@
-package main
+package segtree
 
 /*
 懒惰标记的基本实现步骤：
@@ -37,7 +37,7 @@ func NewSegTree(data []int, mod int) *SegTree {
 }
 
 func (s *SegTree) Build() {
-	s.build(0, 0, s.N-1)
+	s.build(1, 0, s.N-1)
 }
 
 func (s *SegTree) build(no, start, end int) {
@@ -46,21 +46,20 @@ func (s *SegTree) build(no, start, end int) {
 		return
 	}
 	mid := start + (end-start)/2
-	s.build(2*no+1, start, mid)
-	s.build(2*no+2, mid+1, end)
+	s.build(2*no, start, mid)
+	s.build(2*no+1, mid+1, end)
 	s.Node[no] = s.Node[2*no+1] + s.Node[2*no+2]
 }
 
 func (s *SegTree) Update(idx int, value int) {
-	s.update(0, 0, s.N-1, idx, value)
+	s.update(1, 0, s.N-1, idx, value)
 }
 
-func (s *SegTree) UpdateRange(left, right, value int, isMultiplication bool) {
-	if isMultiplication {
-		s.updateRangeMul(0, 0, s.N-1, left, right, value)
-	} else {
-		s.updateRangeAdd(0, 0, s.N-1, left, right, value)
-	}
+func (s *SegTree) RangeAdd(left, right, value int) {
+	s.updateRangeAdd(0, 0, s.N-1, left, right, value)
+}
+func (s *SegTree) RangeMul(left, right, value int) {
+	s.updateRangeMul(0, 0, s.N-1, left, right, value)
 }
 
 func (s *SegTree) updateRangeMul(no, start, end, left, right, value int) {
@@ -100,17 +99,6 @@ func (s *SegTree) applyLazyAdd(no, start, end int) {
 		s.Lazy[2*no+2].Add += s.Lazy[no].Add
 	}
 	s.Lazy[no].NeedAdd = false
-}
-
-func (s *SegTree) applyLazyMul(no, start, end int) {
-	s.Node[no] *= s.Lazy[no].Mul
-	if start != end {
-		s.Lazy[2*no+1].NeedMul = true
-		s.Lazy[2*no+1].Mul *= s.Lazy[no].Mul
-		s.Lazy[2*no+2].NeedMul = true
-		s.Lazy[2*no+2].Mul *= s.Lazy[no].Mul
-	}
-	s.Lazy[no].NeedMul = false
 }
 
 func (s *SegTree) Query(left, right int) int {
@@ -181,5 +169,17 @@ func (s *SegTree) updateRangeAdd(no, start, end, left, right, value int) {
 	mid := start + (end-start)/2
 	s.updateRangeAdd(2*no+1, start, mid, left, right, value)
 	s.updateRangeAdd(2*no+2, mid+1, end, left, right, value)
-	s.Node[no] = s.Node[2*no+1] + s.Node[2*no+2]
+	s.Node[no] = (s.Node[2*no+1] + s.Node[2*no+2]) % s.Mod
+}
+func (s *SegTree) applyLazyMul(no, start, end int) {
+	s.Node[no] = (s.Node[no] * s.Lazy[no].Mul) % s.Mod
+	if start != end {
+		s.Lazy[2*no+1].NeedMul = true
+		s.Lazy[2*no+1].Mul *= s.Lazy[no].Mul
+		s.Lazy[2*no+1].Mul %= s.Mod
+		s.Lazy[2*no+2].NeedMul = true
+		s.Lazy[2*no+2].Mul *= s.Lazy[no].Mul
+		s.Lazy[2*no+2].Mul %= s.Mod
+	}
+	s.Lazy[no].NeedMul = false
 }
