@@ -30,7 +30,7 @@ func Constructor() Fancy {
 
 func (this *Fancy) Append(val int) {
 	this.L++
-	this.tree.Update(this.L, this.L, &Todo{Add: val})
+	this.tree.Update(this.L, this.L, &Todo{Add: val, Mul: 1})
 }
 
 func (this *Fancy) AddAll(inc int) {
