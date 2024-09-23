@@ -90,13 +90,13 @@ func NewSegTree(data []int) *SegTree {
 		Node: t,
 		MOD:  1e9 + 7,
 	}
-	// 不能动态开数组，还是会超时
-	for i := range tree.Node {
-		tree.Node[i] = &Node{
-			Data: &Data{},
-			Todo: &Pair{Mul: 1},
-		}
-	}
+	// 不动态开数组，还是会超时
+	// for i := range tree.Node {
+	// 	tree.Node[i] = &Node{
+	// 		Data: &Data{},
+	// 		Todo: &Pair{Mul: 1},
+	// 	}
+	// }
 	tree.Build(data, 1, 1, n)
 
 	return tree
@@ -105,18 +105,24 @@ func NewSegTree(data []int) *SegTree {
 type Node struct {
 	Left  int
 	Right int
-	Data  *Data
+	Data  *Data // 使用指针，优化到极致了都还是超时
 	Todo  *Pair
 }
 
 func (s *SegTree) MergeInfo(a, b *Data) *Data {
-	return &Data{Value: (a.Value + b.Value) % s.MOD}
+	da := &Data{}
+	if a != nil {
+		da.Value += a.Value
+	}
+	if b != nil {
+		da.Value += b.Value
+	}
+	return da
+
+	// return &Data{Value: (a.Value + b.Value) % s.MOD}
 }
 
 func (s *SegTree) Do(rootId int, p *Pair) {
-	if p == nil {
-		panic("fuck panic")
-	}
 	if p.Mul == 1 && p.Add == 0 {
 		return
 	}
@@ -140,18 +146,20 @@ func (s *SegTree) PushDown(rootId int) {
 	}
 	s.Do(rootId<<1, v)
 	s.Do(rootId<<1|1, v)
-	s.Node[rootId].Todo = InitTodo()
+	s.Node[rootId].Todo.Add = 0
+	s.Node[rootId].Todo.Mul = 1
+	// s.Node[rootId].Todo = InitTodo()
 }
 
 func (s *SegTree) Build(a []int, rootId, l, r int) {
 	if s.Node[rootId] == nil {
-		s.Node[rootId] = &Node{Todo: InitTodo()}
+		s.Node[rootId] = &Node{Data: &Data{}, Todo: InitTodo()}
 	}
 	s.Node[rootId].Left = l
 	s.Node[rootId].Right = r
 	if l == r {
 		// 下标从1开始
-		s.Node[rootId].Data = &Data{Value: a[l-1]}
+		s.Node[rootId].Data.Value = a[l-1]
 		return
 	}
 
@@ -162,10 +170,13 @@ func (s *SegTree) Build(a []int, rootId, l, r int) {
 }
 
 func (s *SegTree) Maintain(rootId int) {
-	s.Node[rootId].Data = s.MergeInfo(s.Node[rootId].Data, s.Node[rootId<<1].Data)
+	s.Node[rootId].Data.Value = s.MergeInfo(s.Node[rootId].Data, s.Node[rootId<<1].Data).Value
 }
 
 func (s *SegTree) Update(rootId, l, r int, v *Pair) {
+	if s.Node[rootId] == nil {
+		s.Node[rootId] = &Node{Data: &Data{}, Todo: InitTodo()}
+	}
 	root := s.Node[rootId]
 	if l <= root.Left && root.Right <= r {
 		s.Do(rootId, v)
@@ -177,7 +188,7 @@ func (s *SegTree) Update(rootId, l, r int, v *Pair) {
 	if l <= mid {
 		s.Update(rootId<<1, l, r, v)
 	}
-	if mid < r {
+	if mid+1 <= r {
 		s.Update(rootId<<1|1, l, r, v)
 	}
 	s.Maintain(rootId)
@@ -190,11 +201,22 @@ func (s *SegTree) Query(rootId int, l, r int) *Data {
 	}
 	s.PushDown(rootId)
 	mid := (root.Left + root.Right) >> 1
-	if r <= mid {
-		return s.Query(rootId<<1, l, r)
+	// if r <= mid {
+	// 	return s.Query(rootId<<1, l, r)
+	// }
+	// if l > mid {
+	// 	return s.Query(rootId<<1|1, l, r)
+	// }
+	// return s.MergeInfo(s.Query(rootId<<1, l, r), s.Query(rootId<<1|1, l, r))
+	ans := 0
+	if l <= mid {
+		ans += s.Query(rootId<<1, l, r).Value
+		// s.Update(rootId<<1, l, r, v)
 	}
-	if l > mid {
-		return s.Query(rootId<<1|1, l, r)
+	if mid+1 <= r {
+		ans += s.Query(rootId<<1|1, l, r).Value
+		// s.Update(rootId<<1|1, l, r, v)
 	}
-	return s.MergeInfo(s.Query(rootId<<1, l, r), s.Query(rootId<<1|1, l, r))
+	return &Data{Value: ans % s.MOD}
+	// return  ans % s.MOD
 }
