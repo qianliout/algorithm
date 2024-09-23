@@ -49,9 +49,12 @@ func (s *SegTree) MergeInfo(a, b Data) Data {
 	da.Value += a.Value
 	da.Value += b.Value
 	return da
-
 	// return &Data{Value: (a.Value + b.Value) % s.MOD}
 }
+
+// 这个方法是最难理解的，从这个方法可以理解 Todo 的含义，如果没有todo,那么在更新时就需要更新全部区间，
+// todo记录的是子区间还没有影响到的值，也就是说：s.Node[rootId].Value 需要保持最新,s.Node[rootId].Todo，是 rootId对应的子区间还没有更新的值
+// 所以 Do 函数的意义就是，把 rootId 上应该更新的值更新成最新的,并把 本次需要更新子区单的值记录到 todo 中
 
 func (s *SegTree) Do(rootId int, p Pair) {
 	if p.Mul == 1 && p.Add == 0 {
@@ -88,16 +91,17 @@ func (s *SegTree) Do(rootId int, p Pair) {
 	s.Node[rootId] = node
 }
 
+// 懒惰传播，把 rootId 上记录的 todo 更新到子区单中去,并把 rootId 上的todo 设置成初始值
+
 func (s *SegTree) PushDown(rootId int) {
 	v := s.Node[rootId].Todo
 	if v.Mul == 1 && v.Add == 0 {
 		return
 	}
+
 	s.Do(rootId<<1, v)
 	s.Do(rootId<<1|1, v)
 
-	s.Node[rootId].Todo.Add = 0
-	s.Node[rootId].Todo.Mul = 1
 	s.Node[rootId].Todo = initPair
 }
 
@@ -118,16 +122,23 @@ func (s *SegTree) Build(a []int, rootId, l, r int) {
 	s.Maintain(rootId)
 }
 
+// 通过rootId两个子节点维护父节点的值
+
 func (s *SegTree) Maintain(rootId int) {
 	s.Node[rootId].Data = s.MergeInfo(s.Node[rootId<<1].Data, s.Node[rootId<<1|1].Data)
 }
 
+// 区单更新
+
 func (s *SegTree) Update(rootId, l, r int, v Pair) {
 	root := s.Node[rootId]
+	// 全包含了
 	if l <= root.Left && root.Right <= r {
+		// 把rootId 的值更新成最新的，并把本次更新的值记录到 todo 中
 		s.Do(rootId, v)
 		return
 	}
+	// 把todo 记录到两个子节点中去
 	s.PushDown(rootId)
 
 	mid := (root.Left + root.Right) >> 1
