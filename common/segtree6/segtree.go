@@ -1,25 +1,40 @@
 package segtree
 
-type Update struct {
+import (
+	"math"
+	"math/bits"
+)
+
+type Todo struct {
 	Add int
 	Mul int
 }
 
 type SegTree struct {
 	Data []int
-	Node []int
-	Lazy []Update
+	Node []*Node
+	Lazy []*Todo
 	N    int
+	MOD  int
+}
+type Node struct {
+	Left  int
+	Right int
+	Value int
+	Todo  *Todo
 }
 
 func NewSegTree(data []int) *SegTree {
 	n := len(data)
 	st := &SegTree{
 		Data: data,
-		Node: make([]int, 4*n),
-		Lazy: make([]Update, 4*n),
-		N:    len(data),
+		Node: make([]*Node, 2<<bits.Len(uint(n-1))),
+		Lazy: make([]*Todo, 2<<bits.Len(uint(n-1))),
+		N:    n,
+		MOD:  int(math.Pow(10, 9) + 7),
 	}
+
+	st.Build()
 
 	return st
 }
@@ -28,11 +43,22 @@ func (s *SegTree) Build() {
 	s.build(1, 1, s.N)
 }
 func (s *SegTree) build(rootId int, l, r int) {
+	// 不合法
 	if l > r {
 		return
 	}
+	if s.Node[rootId] == nil {
+		s.Node[rootId] = &Node{}
+	}
+	if s.Lazy[rootId] == nil {
+		s.Lazy[rootId] = &Todo{Mul: 1}
+	}
+	s.Node[rootId].Left = l
+	s.Node[rootId].Right = r
+	s.Lazy[rootId] = &Todo{Mul: 1}
+
 	if l == r {
-		s.Node[rootId] = s.Data[l-1]
+		s.Node[rootId].Value = s.Data[l-1]
 		return
 	}
 	mid := l + (r-l)/2
@@ -41,55 +67,110 @@ func (s *SegTree) build(rootId int, l, r int) {
 	s.PushUp(rootId)
 }
 func (s *SegTree) PushUp(rootId int) {
-	s.Node[rootId] = s.Node[2*rootId] + s.Node[2*rootId+1]
+	s.Node[rootId].Value = (s.Node[rootId<<1].Value + s.Node[rootId<<1|1].Value) % s.MOD
 }
 
-func (s *SegTree) Update(start, end int, up Update) {
-	s.update(1, 1, s.N, start, end, up)
+func (s *SegTree) Update(start, end int, up *Todo) {
+	s.update(1, start, end, up)
 }
 
-func (s *SegTree) update(rootId, l, r int, start, end int, up Update) {
+func (s *SegTree) update(rootId, start, end int, up *Todo) {
 	// 不合法
-	if l > r || start > end {
+	if start > end {
 		return
 	}
 	// 无交集
+	root := s.Node[rootId]
+	l, r := root.Left, root.Right
 	if end < l || start > r {
 		return
 	}
 	// 全部包含
 	if start <= l && r <= end {
-		// 更新数字和，向上保持正确,也就是说 root节点的值是正确的,lazy[root]的值是还没有向下调整的值
-		s.Node[rootId] += (end - start + 1) * up.Add
-		// 增加 add 标记，表示本区间的 Sum 正确，子区间的 Sum 仍需要根据 add 的值来调整
-		s.Lazy[rootId].Add += up.Add
+		s.Do(rootId, up)
 		return
 	}
+	s.PushDown(rootId)
+
 	// 部分包含
 	mid := l + (r-l)/2
-	// 把lazy[root]的标计下推
-	s.PushDown(rootId, mid-l+1, r-(mid+1)+1)
-	s.update(rootId*2, l, mid, start, end, up)
-	s.update(rootId*2+1, mid+1, r, start, end, up)
-	s.PushUp(rootId)
 
-	if l == r {
-		s.Data[l-1] = s.Node[l]
+	// 把lazy[root]的标计下推
+	if l <= mid {
+		s.update(rootId<<1, start, end, up)
+		// s.update(root.Left, start, end, up)
 	}
+	if mid < r {
+		s.update(rootId<<1+1, start, end, up)
+		// s.update(root.Right, start, end, up)
+	}
+	s.PushUp(rootId)
 }
 
-func (s *SegTree) PushDown(rootId int, leN, riN int) {
-	if s.Lazy[rootId].Add == 0 {
+func (s *SegTree) PushDown(rootId int) {
+	lz := s.Lazy[rootId]
+	if lz.Add == 0 && lz.Mul == 1 {
 		return
 	}
-	// 下推标计
-	s.Lazy[2*rootId].Add += s.Lazy[rootId].Add
-	s.Lazy[2*rootId+1].Add += s.Lazy[rootId].Add
 
-	// 保持左右两节点值正确
-	s.Node[2*rootId] += leN * s.Lazy[rootId].Add
-	s.Node[2*rootId+1] += riN * s.Lazy[rootId].Add
+	s.Do(rootId<<1, lz)
+	s.Do(rootId<<1|1, lz)
+	s.Lazy[rootId] = &Todo{Mul: 1}
+}
 
-	// 清除 root 的 标计
-	s.Lazy[rootId] = Update{}
+func (s *SegTree) Do(rootId int, up *Todo) {
+
+	root := s.Node[rootId]
+
+	lz := s.Lazy[rootId]
+	sz := root.Right - root.Left + 1
+
+	if up.Mul != 1 {
+		root.Value = (root.Value * up.Mul) % s.MOD
+		lz.Add = (lz.Add * up.Mul) % s.MOD
+		lz.Mul = (lz.Mul * up.Mul) % s.MOD
+	}
+	if up.Add != 0 {
+		root.Value = (root.Value + sz*up.Add) % s.MOD
+		lz.Add = (lz.Add + up.Add) % s.MOD
+	}
+
+	s.Node[rootId] = root
+	s.Lazy[rootId] = lz
+}
+
+func (s *SegTree) Query(start, end int) int {
+	return s.query(1, start, end)
+}
+
+func (s *SegTree) query(rootId int, start, end int) int {
+	// 不合法
+	if start > end {
+		return 0
+	}
+	// 无交集
+	root := s.Node[rootId]
+	l, r := root.Left, root.Right
+	if end < l || start > r {
+		return 0
+	}
+	// 全部包含
+	if start <= l && r <= end {
+		return s.Node[rootId].Value
+	}
+	// 部分包含
+	// 把lazy[root]的标计下推
+	s.PushDown(rootId)
+
+	mid := l + (r-l)/2
+	ans := 0
+	if end <= mid {
+		return s.query(rootId<<1, start, end)
+	}
+	if start >= mid+1 {
+		return s.query(rootId<<1|1, start, end)
+	}
+	ans += s.query(rootId<<1, start, end)
+	ans += s.query(rootId<<1+1, start, end)
+	return ans % s.MOD
 }
