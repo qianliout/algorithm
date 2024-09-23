@@ -4,72 +4,104 @@ func main() {
 
 }
 
-type seg []struct {
-	l, r, cnt1 int
-	flip       bool
-}
-
-// 维护区间 1 的个数
-func (t seg) maintain(o int) { t[o].cnt1 = t[o<<1].cnt1 + t[o<<1|1].cnt1 }
-
-func (t seg) build(a []int, o, l, r int) {
-	t[o].l, t[o].r = l, r
-	if l == r {
-		t[o].cnt1 = a[l-1]
-		return
-	}
-	m := (l + r) >> 1
-	t.build(a, o<<1, l, m)
-	t.build(a, o<<1|1, m+1, r)
-	t.maintain(o)
-}
-
-// 执行区间反转
-func (t seg) do(O int) {
-	o := &t[O]
-	o.cnt1 = o.r - o.l + 1 - o.cnt1
-	o.flip = !o.flip
-}
-
-func (t seg) spread(o int) {
-	if t[o].flip {
-		t.do(o << 1)
-		t.do(o<<1 | 1)
-		t[o].flip = false
-	}
-}
-
-func (t seg) update(o, l, r int) {
-	if l <= t[o].l && t[o].r <= r {
-		t.do(o)
-		return
-	}
-	t.spread(o)
-	m := (t[o].l + t[o].r) >> 1
-	if l <= m {
-		t.update(o<<1, l, r)
-	}
-	if m < r {
-		t.update(o<<1|1, l, r)
-	}
-	t.maintain(o)
-}
-
-func handleQuery(nums1, nums2 []int, queries [][]int) (ans []int64) {
+func handleQuery(nums1 []int, nums2 []int, queries [][]int) []int64 {
+	n := len(nums1)
+	tree := &SegTree{Node: make([]Node, n*4)}
+	tree.build(nums1, 1, 1, n)
+	ans := make([]int64, 0)
 	sum := 0
 	for _, x := range nums2 {
 		sum += x
 	}
-	t := make(seg, len(nums1)*4)
-	t.build(nums1, 1, 1, len(nums1))
-	for _, q := range queries {
-		if q[0] == 1 {
-			t.update(1, q[1]+1, q[2]+1)
-		} else if q[0] == 2 {
-			sum += q[1] * t[1].cnt1
+	for _, ch := range queries {
+		if ch[0] == 1 {
+			tree.update(1, ch[1]+1, ch[2]+1)
+		} else if ch[0] == 2 {
+			sum += tree.Query(1, 1, n) * ch[1]
 		} else {
 			ans = append(ans, int64(sum))
 		}
 	}
-	return
+	return ans
 }
+
+type Node struct {
+	Left  int
+	Right int
+	Cnt1  int  // 区间内1的个数
+	Flip  bool // 执行反转,相当于 lazy
+}
+
+type SegTree struct {
+	Node []Node
+}
+
+func (s *SegTree) build(nums []int, rootId, l, r int) {
+	s.Node[rootId].Left = l
+	s.Node[rootId].Right = r
+	if l == r {
+		s.Node[rootId].Cnt1 = nums[l-1]
+		return
+	}
+	mid := (l + r) >> 1
+	s.build(nums, rootId<<1, l, mid)
+	s.build(nums, rootId<<1|1, mid+1, r)
+	s.maintain(rootId)
+}
+
+func (s *SegTree) maintain(rootId int) {
+	s.Node[rootId].Cnt1 = s.Node[rootId<<1].Cnt1 + s.Node[rootId<<1|1].Cnt1
+}
+func (s *SegTree) update(rootId int, l, r int) {
+	root := s.Node[rootId]
+	if l <= root.Left && r >= root.Right {
+		s.do(rootId)
+		return
+	}
+	s.pushDown(rootId)
+
+	mid := (root.Left + root.Right) >> 1
+
+	if l <= mid {
+		s.update(rootId<<1, l, r)
+	}
+	if mid+1 <= r {
+		s.update(rootId<<1|1, l, r)
+	}
+	s.maintain(rootId)
+}
+
+func (s *SegTree) Query(rootId, l, r int) int {
+	root := s.Node[rootId]
+	if l <= root.Left && r >= root.Right {
+		return s.Node[rootId].Cnt1
+	}
+	s.pushDown(rootId)
+	mid := (root.Left + root.Right) >> 1
+	ans := 0
+	if l <= mid {
+		ans += s.Query(rootId<<1, l, r)
+	}
+	if mid+1 <= r {
+		ans += s.Query(rootId, l, r)
+	}
+	return ans
+}
+
+func (s *SegTree) pushDown(rootId int) {
+	root := s.Node[rootId]
+	if root.Flip {
+		s.do(rootId << 1)
+		s.do(rootId<<1 | 1)
+		s.Node[rootId].Flip = false
+	}
+}
+
+func (s *SegTree) do(rootId int) {
+	root := s.Node[rootId]
+	s.Node[rootId].Cnt1 = root.Right - root.Left + 1 - s.Node[rootId].Cnt1
+	s.Node[rootId].Flip = !s.Node[rootId].Flip
+}
+
+// 设 nums1 中总共有 c 个 1，那么操作 2 相当于把 nums2的元素和增加了 c⋅p。所以只需要维护 nums1 中 1 的个数。
+// 如何实现操作 1？用 Lazy 线段树维护区间内 1 的个数 cnt1，以及整个区间是否需要反转的 Lazy 标记 flip
