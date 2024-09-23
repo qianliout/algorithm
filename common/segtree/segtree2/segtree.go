@@ -1,70 +1,14 @@
-package main
+package segtree
+
+/*
+	全部不用指针，根节点从1开始
+	支持区间加法，区间乘法
+*/
 
 import (
-	"fmt"
 	"math/bits"
 )
 
-func main() {
-	f := Constructor()
-	f.Append(2)
-	f.AddAll(3)
-	f.Append(7)
-	f.MultAll(2)
-	a := f.GetIndex(0)
-	fmt.Println(`ans is 10,but:`, a)
-}
-
-type Fancy struct {
-	tree *SegTree
-	sz   int
-}
-
-func Constructor() Fancy {
-	// n := int(math.Pow10(5)) + 5
-	n := 4
-	a := make([]int, n)
-	tree := NewSegTree(a)
-	return Fancy{
-		tree: tree,
-		sz:   0,
-	}
-}
-
-func (this *Fancy) Append(val int) {
-	this.sz++
-	this.tree.Update(1, this.sz, this.sz, Pair{Add: val, Mul: 1})
-}
-
-func (this *Fancy) AddAll(inc int) {
-	if this.sz == 0 {
-		return
-	}
-	this.tree.Update(1, 1, this.sz, Pair{Add: inc, Mul: 1})
-}
-
-func (this *Fancy) MultAll(m int) {
-	if this.sz == 0 {
-		return
-	}
-	this.tree.Update(1, 1, this.sz, Pair{Mul: m})
-}
-
-func (this *Fancy) GetIndex(idx int) int {
-	if idx+1 > this.sz {
-		return -1
-	}
-	return this.tree.Query(1, idx+1, idx+1).Value
-}
-
-/**
- * Your Fancy object will be instantiated and called as such:
- * obj := Constructor();
- * obj.Append(val);
- * obj.AddAll(inc);
- * obj.MultAll(m);
- * param_4 := obj.GetIndex(idx);
- */
 var initPair = Pair{Add: 0, Mul: 1}
 
 type Data struct {
@@ -116,14 +60,31 @@ func (s *SegTree) Do(rootId int, p Pair) {
 	node := s.Node[rootId]
 	sz := node.Right - node.Left + 1
 	if p.Mul != 1 {
+		// 在乘法更新时通常不需要使用 sz（区间大小），因为乘法操作是对节点当前存储的值进行的直接操作，而不是累加操作。对于线段树中的一个节点来说，它存储的值通常是其覆盖范围内的某些聚合信息（如总和、最小值、最大值等）。
+		// 在这个特定的函数中，o.d.v 表示的是节点的某种聚合值。当执行乘法更新时，我们只需要将这个聚合值乘以给定的因子 p.mul 即可。这是因为乘法操作不会受到区间长度的影响——无论区间内有多少个元素，每个元素都应当被相同的因子所乘。
+		// 例如，如果 o.d.v 存储的是一个区间的元素之和，那么当我们需要将区间内每个元素都乘以某个常数 k 时，我们只需将 o.d.v 乘以 k，而不需要知道具体的元素数量。
+		// 因此，在乘法更新时不使用 sz 是合理的。而加法更新时使用 sz 是因为我们需要将区间内每个元素都加上一个常数值，所以需要知道区间的实际长度来正确地更新聚合值
 		node.Data.Value = (node.Data.Value * p.Mul) % s.MOD
+
+		// 在乘法更新时更新加法因子是为了保证后续的加法操作能够正确地反映之前的所有操作。具体原因如下：
+		// 懒惰传播：线段树中的懒惰传播机制允许我们延迟一些操作，直到真正需要的时候才执行。这意味着在某些节点上可能会累积多个待执行的操作。
+		// 组合操作：假设某个节点已经有一个待执行的加法操作 add 和一个待执行的乘法操作 mul。当新的乘法操作 p.mul 应用到这个节点时，我们需要确保之前的加法操作也能够正确地应用。
+		// 具体来说：
+		// 当前节点的待执行加法操作 o.todo.add 需要乘以新的乘法因子 p.mul，以确保在最终执行加法操作时，结果仍然正确。
+		// 例如：
+		// 假设当前节点有 o.todo.add = 5 和 o.todo.mul = 2。
+		// 新的乘法操作 p.mul = 3 应用到节点上。
+		// 更新后的加法操作应该是 o.todo.add = 5 * 3 = 15，这样在最终执行加法操作时，每个元素先乘以 3 再加 15，而不是先加 5 再乘以 3。
+		// 因此，在乘法更新时更新加法因子是为了确保所有操作的顺序和效果正确无误。这样可以避免在后续的加法操作中出现错误的结果。
 		node.Todo.Add = (node.Todo.Add * p.Mul) % s.MOD
+
 		node.Todo.Mul = (node.Todo.Mul * p.Mul) % s.MOD
 	}
 	if p.Add != 0 {
 		node.Data.Value = (node.Data.Value + sz*p.Add) % s.MOD
 		node.Todo.Add = (node.Todo.Add + p.Add) % s.MOD
 	}
+	// 都是值引用，所以一定要赋值操作
 	s.Node[rootId] = node
 }
 
@@ -158,7 +119,7 @@ func (s *SegTree) Build(a []int, rootId, l, r int) {
 }
 
 func (s *SegTree) Maintain(rootId int) {
-	s.Node[rootId].Data = s.MergeInfo(s.Node[rootId].Data, s.Node[rootId<<1].Data)
+	s.Node[rootId].Data = s.MergeInfo(s.Node[rootId<<1].Data, s.Node[rootId<<1|1].Data)
 }
 
 func (s *SegTree) Update(rootId, l, r int, v Pair) {

@@ -1,70 +1,6 @@
-package main
+package segtree
 
-import (
-	"fmt"
-	"math"
-	"math/bits"
-)
-
-func main() {
-	f := Constructor()
-	f.Append(2)
-	f.AddAll(3)
-	f.Append(7)
-	f.MultAll(2)
-	a := f.GetIndex(0)
-	fmt.Println(`ans is 10,but:`, a)
-}
-
-type Fancy struct {
-	tree *SegTree
-	sz   int
-}
-
-func Constructor() Fancy {
-	n := int(math.Pow10(5)) + 5
-	a := make([]int, n)
-	tree := NewSegTree(a)
-	return Fancy{
-		tree: tree,
-		sz:   0,
-	}
-}
-
-func (this *Fancy) Append(val int) {
-	this.sz++
-	this.tree.Update(1, this.sz, this.sz, &Pair{Add: val, Mul: 1})
-}
-
-func (this *Fancy) AddAll(inc int) {
-	if this.sz == 0 {
-		return
-	}
-	this.tree.Update(1, 1, this.sz, &Pair{Add: inc, Mul: 1})
-}
-
-func (this *Fancy) MultAll(m int) {
-	if this.sz == 0 {
-		return
-	}
-	this.tree.Update(1, 1, this.sz, &Pair{Mul: m})
-}
-
-func (this *Fancy) GetIndex(idx int) int {
-	if idx+1 > this.sz {
-		return -1
-	}
-	return this.tree.Query(1, idx+1, idx+1).Value
-}
-
-/**
- * Your Fancy object will be instantiated and called as such:
- * obj := Constructor();
- * obj.Append(val);
- * obj.AddAll(inc);
- * obj.MultAll(m);
- * param_4 := obj.GetIndex(idx);
- */
+import "math/bits"
 
 type Data struct {
 	Value int
@@ -90,13 +26,13 @@ func NewSegTree(data []int) *SegTree {
 		Node: t,
 		MOD:  1e9 + 7,
 	}
-	// 不动态开数组，还是会超时
-	// for i := range tree.Node {
-	// 	tree.Node[i] = &Node{
-	// 		Data: &Data{},
-	// 		Todo: &Pair{Mul: 1},
-	// 	}
-	// }
+	// 可以先把数组赋值，下面就可以不用空指针判断
+	for i := range tree.Node {
+		tree.Node[i] = &Node{
+			Data: &Data{},
+			Todo: &Pair{Mul: 1},
+		}
+	}
 	tree.Build(data, 1, 1, n)
 
 	return tree
@@ -110,6 +46,7 @@ type Node struct {
 }
 
 func (s *SegTree) MergeInfo(a, b *Data) *Data {
+
 	da := &Data{}
 	if a != nil {
 		da.Value += a.Value
@@ -118,7 +55,7 @@ func (s *SegTree) MergeInfo(a, b *Data) *Data {
 		da.Value += b.Value
 	}
 	return da
-
+	// 如果上面在初始化时已经赋初值了,就不用空指针判断
 	// return &Data{Value: (a.Value + b.Value) % s.MOD}
 }
 
@@ -137,6 +74,8 @@ func (s *SegTree) Do(rootId int, p *Pair) {
 		node.Data.Value = (node.Data.Value + sz*p.Add) % s.MOD
 		node.Todo.Add = (node.Todo.Add + p.Add) % s.MOD
 	}
+	// 因为传的是指针，所以最后可以不用再赋值
+	// s.Node[rootId] = node
 }
 
 func (s *SegTree) PushDown(rootId int) {
@@ -170,7 +109,7 @@ func (s *SegTree) Build(a []int, rootId, l, r int) {
 }
 
 func (s *SegTree) Maintain(rootId int) {
-	s.Node[rootId].Data.Value = s.MergeInfo(s.Node[rootId].Data, s.Node[rootId<<1].Data).Value
+	s.Node[rootId].Data = s.MergeInfo(s.Node[rootId<<1].Data, s.Node[rootId<<1|1].Data)
 }
 
 func (s *SegTree) Update(rootId, l, r int, v *Pair) {
@@ -201,6 +140,8 @@ func (s *SegTree) Query(rootId int, l, r int) *Data {
 	}
 	s.PushDown(rootId)
 	mid := (root.Left + root.Right) >> 1
+
+	// 这样写也是可以的
 	// if r <= mid {
 	// 	return s.Query(rootId<<1, l, r)
 	// }
@@ -208,15 +149,14 @@ func (s *SegTree) Query(rootId int, l, r int) *Data {
 	// 	return s.Query(rootId<<1|1, l, r)
 	// }
 	// return s.MergeInfo(s.Query(rootId<<1, l, r), s.Query(rootId<<1|1, l, r))
+
+	// 更好的写法是这样
 	ans := 0
 	if l <= mid {
 		ans += s.Query(rootId<<1, l, r).Value
-		// s.Update(rootId<<1, l, r, v)
 	}
 	if mid+1 <= r {
 		ans += s.Query(rootId<<1|1, l, r).Value
-		// s.Update(rootId<<1|1, l, r, v)
 	}
 	return &Data{Value: ans % s.MOD}
-	// return  ans % s.MOD
 }

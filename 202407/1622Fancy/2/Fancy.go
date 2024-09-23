@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	. "outback/algorithm/common/segtree6"
+	. "outback/algorithm/common/segtree7"
 )
 
 func main() {
@@ -18,33 +18,51 @@ func main() {
 
 type Fancy struct {
 	tree *SegTree
-	L    int
+	sz   int
 }
 
 func Constructor() Fancy {
-	n := 3
-	data := make([]int, n)
-	tree := NewSegTree(data)
-	return Fancy{tree: tree}
+	// n := int(math.Pow10(5)) + 5
+	n := 4
+	a := make([]int, n)
+	tree := NewSegTree(a)
+	return Fancy{
+		tree: tree,
+		sz:   0,
+	}
 }
 
 func (this *Fancy) Append(val int) {
-	this.L++
-	this.tree.Update(this.L, this.L, &Todo{Add: val, Mul: 1})
+	this.sz++
+	this.tree.Update(1, this.sz, this.sz, Pair{Add: val, Mul: 1})
 }
 
 func (this *Fancy) AddAll(inc int) {
-	this.tree.Update(1, this.L, &Todo{Add: inc})
+	if this.sz == 0 {
+		return
+	}
+	this.tree.Update(1, 1, this.sz, Pair{Add: inc, Mul: 1})
 }
 
 func (this *Fancy) MultAll(m int) {
-	this.tree.Update(1, this.L, &Todo{Mul: m})
+	if this.sz == 0 {
+		return
+	}
+	this.tree.Update(1, 1, this.sz, Pair{Mul: m})
 }
 
 func (this *Fancy) GetIndex(idx int) int {
-	if idx+1 > this.L {
+	if idx+1 > this.sz {
 		return -1
 	}
-	ans := this.tree.Query(idx+1, idx+1)
-	return ans
+	return this.tree.Query(1, idx+1, idx+1).Value
 }
+
+/**
+ * Your Fancy object will be instantiated and called as such:
+ * obj := Constructor();
+ * obj.Append(val);
+ * obj.AddAll(inc);
+ * obj.MultAll(m);
+ * param_4 := obj.GetIndex(idx);
+ */

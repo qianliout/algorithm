@@ -1,5 +1,15 @@
 package segtree
 
+/*
+
+// 最简单的方式，只支持单点更新,节点从0开始
+
+根节点node[0]
+对于任务节点 i，他的父节点是(i-1)/2
+左孩子节点：i*2+1
+右孩子节点：i*2+2
+*/
+
 type SegTree struct {
 	Data []int
 	Node []int
@@ -50,17 +60,10 @@ func (s *SegTree) Query(l, r int) int {
 	return s.query(0, 0, s.N-1, l, r)
 }
 
-// 要着重理解这几个参数的意义
-// o:本次查询的区间起点，也是递归的入口：树状数组的根节点
-// l,r,是次所查询的树状数组的左右边界，在递归过程中，会不断缩小查询范围
-// start,end 是本次要查询的原数据的左右范围，闭区间
 func (s *SegTree) query(o, l, r, start, end int) int {
-	// 本次所查询的树状数组的范围没有与查询范围有交集
 	if end < l || r < start {
 		return 0
 	}
-
-	// 树装数组的范围已经完全在查询范围内了，就没有必要再递归下次了
 	if start <= l && end >= r {
 		return s.Node[o]
 	}
