@@ -32,8 +32,9 @@ func countOfPairs1(nums []int) int {
 		}
 		cnt := 0
 		maxK := min(j, nums[i-1]-nums[i]+j)
-		// 要求非负数
-		for k := 0; k <= maxK; k++ {
+		// 要求非负数,这里的 k 从前到后，从后到前都是一样的
+		// for k := 0; k <= maxK; k++ {
+		for k := maxK; k >= 0; k-- {
 			cnt += dfs(i-1, k)
 		}
 		mem[i][j] = cnt % mod
@@ -59,7 +60,8 @@ func countOfPairs(nums []int) int {
 		f[0][j] = 1
 	}
 	for i := 1; i < n; i++ {
-		for j := nums[i]; j >= 0; j-- {
+		// for j := nums[i]; j >= 0; j-- {
+		for j := 0; j <= nums[i]; j++ {
 			maxK := min(j, nums[i-1]-nums[i]+j)
 			for k := 0; k <= maxK; k++ {
 				f[i][j] += f[i-1][k]
