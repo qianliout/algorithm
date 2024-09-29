@@ -32,7 +32,7 @@ func TestPostOrderTraversal(t *testing.T) {
 		fmt.Println(len(r))
 	}
 
-	//InOrderTraversal(root)
-	//PreOrderTraversal(root)
-	//PostOrderTraversal(root)
+	// InOrderTraversal(root)
+	// PreOrderTraversal(root)
+	// PostOrderTraversal(root)
 }
