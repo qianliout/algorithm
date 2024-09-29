@@ -7,13 +7,11 @@ func main() {
 	fmt.Println(countOfPeaks([]int{4, 10, 8, 6}, [][]int{{1, 0, 3}, {1, 2, 3}, {1, 2, 3}}))
 }
 
-// 树状数组结构体
 type BIT struct {
 	N    int // 数组长度
 	Data []int
 }
 
-// 新建一个树状数组
 func NewBIT(n int) *BIT {
 	return &BIT{N: n, Data: make([]int, n)}
 }
@@ -35,7 +33,6 @@ func (b *BIT) pre(i int) int {
 	return res
 }
 
-// 查询前缀和
 func (b *BIT) query(l, r int) int {
 	if l > r {
 		return 0
@@ -75,7 +72,6 @@ func countOfPeaks(nums []int, queries [][]int) []int {
 	return ans
 }
 
-// 低bit位操作
 func lowBit(x int) int {
 	return x & -x
 }

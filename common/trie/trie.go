@@ -17,7 +17,7 @@ func Constructor() Trie {
 	return Trie{Root: NewNode()}
 }
 
-// 向Trie中添加一个新的单词word
+// Insert 向Trie中添加一个新的单词word
 func (t *Trie) Insert(word string) {
 	add(t.Root, word, 0)
 }
@@ -36,7 +36,7 @@ func add(node *Node, word string, index int) {
 	add(node.Next[c], word, index+1)
 }
 
-// 查询单词word是否在Trie中
+// Search 查询单词word是否在Trie中
 func (t *Trie) Search(word string) bool {
 	return contains(t.Root, word, 0)
 }
@@ -54,7 +54,7 @@ func contains(node *Node, word string, index int) bool {
 	return contains(node.Next[c], word, index+1)
 }
 
-// 查询是否在Trie中有单词以prefix为前缀
+// StartsWith 查询是否在Trie中有单词以prefix为前缀
 func (t *Trie) StartsWith(prefix string) bool {
 	return isPrefix(t.Root, prefix, 0)
 }

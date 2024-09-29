@@ -17,7 +17,7 @@ func findExist() {
 	// 如果存在，就是最早出现的位置，如果不存在就是插入的位置，也就是 >x 的最小位置
 	// 所以有几个特别点：
 	// 1,如果 x 比最大值都大，刚返回 n,如果比最小值都小，刚返回0
-	// 如果要找一个存在的数和右端点:sort.SearchInts(nums, x+1) -1,如果保证存在可以这样写
+	// 如果要找一个存在的数的右端点:sort.SearchInts(nums, x+1) -1,如果保证存在可以这样写
 	j1 := sort.SearchInts(nums, 3)
 	fmt.Println("存在且左端点：", j1)
 	j2 := sort.SearchInts(nums, 3+1)
@@ -32,7 +32,7 @@ func findExist() {
 	fmt.Println("存在且右端点：", j4-1)
 }
 
-// 存在
+// 不存在
 func findNotExist() {
 	nums := []int{0, 1, 2, 2, 2, 4, 4}
 	n := len(nums)

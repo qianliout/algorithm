@@ -30,6 +30,7 @@ func partition(nums []int, low, high int) int {
 		// 1：把 ch 和大堆中的第一个元素交换，
 		// 2：把 j 的位置向后移动一位
 		if ch < pivot {
+			// 这里一定是先把 j++ 这里是最容易出错的点
 			j++
 			nums[j], nums[i] = nums[i], nums[j]
 		}
