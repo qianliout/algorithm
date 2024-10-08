@@ -19,7 +19,13 @@ func NewRankUnionFind(totalNodes int) *RankUnionFind {
 func (u *RankUnionFind) Find(x int) int {
 	if u.Parent[x] != x {
 		// 路径压缩
-		u.Parent[x] = u.Find(u.Parent[x])
+		// 这是为了进行路径压缩（path compression），具体有以下好处：
+		// 加速后续查找：通过将当前节点直接连接到查询得到的根节点上，减少了后续对该节点及其子节点进行查找时的层级深度，从而加快了下一次查找的速度。
+		// 优化性能：在不增加额外操作复杂度的前提下，通过对路径上的每个节点进行修改，使得树形结构更加扁平化，进而提升了整个并查集结构的效率。
+		// u.Parent[x] = u.Find(u.Parent[x])
+
+		// 当然也可以在查询过程中不修改数据
+		return u.Find(u.Parent[x])
 	}
 	return u.Parent[x]
 }
