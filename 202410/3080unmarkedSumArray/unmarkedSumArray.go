@@ -11,7 +11,7 @@ func main() {
 
 }
 
-func unmarkedSumArray(nums []int, queries [][]int) []int64 {
+func unmarkedSumArray2(nums []int, queries [][]int) []int64 {
 	n, m := len(nums), len(queries)
 	ids := make([]int, n)
 	ids2 := make([]int, n)
@@ -52,4 +52,45 @@ func unmarkedSumArray(nums []int, queries [][]int) []int64 {
 	}
 
 	return ans
+}
+
+func unmarkedSumArray(nums []int, queries [][]int) []int64 {
+	n, m := len(nums), len(queries)
+	ids2 := make([]pair, n)
+	s := 0
+	for i, ch := range nums {
+		ids2[i] = pair{idx: i, num: ch}
+		s += ch
+	}
+	// 这种写法也是对的
+	sort.SliceStable(ids2, func(i, j int) bool {
+		if ids2[i].num != ids2[j].num {
+			return ids2[i].num < ids2[j].num
+		}
+		return ids2[i].idx < ids2[j].idx
+	})
+	ans := make([]int64, m)
+	// 上面用了固定排序，所以这里 j 是全局的
+	// 如果不用稳定排序的话，下面的循环中可以让 j 从0 开始，但是这样会  超时
+	j := 0
+	for qi, p := range queries {
+		i, k := p[0], p[1]
+		s -= nums[i]
+		nums[i] = 0 // 题目中说了全是正数
+		for ; j < n && k > 0; j++ {
+			d := ids2[j].idx
+			if nums[d] > 0 {
+				s -= nums[d]
+				nums[d] = 0
+				k--
+			}
+		}
+		ans[qi] = int64(s)
+	}
+
+	return ans
+}
+
+type pair struct {
+	idx, num int
 }
