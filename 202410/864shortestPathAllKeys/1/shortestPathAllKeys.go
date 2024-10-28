@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	// fmt.Println(shortestPathAllKeys([]string{"@.a..", "###.#", "b.A.B"}))
+	fmt.Println(shortestPathAllKeys([]string{"@.a..", "###.#", "b.A.B"}))
 	fmt.Println(shortestPathAllKeys([]string{"@..aA", "..B#.", "....b"}))
 }
 

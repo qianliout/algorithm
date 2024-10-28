@@ -14,8 +14,8 @@ func mirrorReflection(p int, q int) int {
 	q = (q / g) & 1
 	if p == 1 && q == 1 {
 		return 1
-
 	}
+
 	if p == 1 {
 		return 0
 	}
@@ -24,7 +24,7 @@ func mirrorReflection(p int, q int) int {
 }
 
 func lcm(a, b int) int {
-	return a * b / gcd(a, b)
+	return (a * b) / gcd(a, b)
 }
 
 // 递归的辗转相除法
