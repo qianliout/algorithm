@@ -4,23 +4,38 @@ func main() {
 
 }
 
-func new21Game(n int, k int, maxPts int) float64 {
+func new21Game(n int, k int, w int) float64 {
 	// dp[x] 表示他手上的牌总数是 x 时获胜的概率（当停止抽牌时，手上总数大于 n 就是获胜）
-	dp := make([]float64, k+maxPts)
+	dp := make([]float64, k+w+1)
 	// dp[x]=1/w * (dp[x+1]+dp[x+2]+dp[x+3]...+dp[x+w])
 	s := float64(0)
 	// 当x>=K时，爱丽丝会停止抽牌，这个时候游戏已经结束了，她是赢是输也已经确定了，所以此时赢的概率要么1，要么0
-	for i := k + maxPts; i >= k; i-- {
+	for i := k + w; i >= k; i-- {
 		// 结束时她所持牌面值小于等于N的概率
 		if i <= n {
 			dp[i] = 1
 		}
 		s += dp[i]
 	}
+	// for i := k - 1; i >= 0; i-- {
+	// 	dp[i] = s / float64(w)
+	// 	// 当x<K时，爱丽丝会继续抽牌，抽牌是有概率的，所以她是赢是输也有概率。
+	// 	// 她能抽到的牌面值在 [1,W] 之间，所以抽完后她的牌面在[x+1,x+w]之间，因为每张牌机率均等，
+	// 	// 所以抽完后牌面在[x+1,x+w]之间的每个面值概率都是相等的，而假如我们已知当牌面是[x+1,x+w]的胜率(即dp[x+1]...dp[x+w]的值)
+	// 	// 那么可以推导：
+	// 	// dp[x]=1/w * dp[x+1]+ 1/w * dp[x+2] + 1/w * dp[x+3]...+ 1/w * dp[x+w]
+	//
+	// 	// 这里的 s 的处理是为了下一个 i 做准，
+	// 	s = s - dp[i+w] + dp[i]
+	// }
+	// 这样写就好理解了
 	for i := k - 1; i >= 0; i-- {
-		dp[i] = s / float64(maxPts)
-		// 这一段还没有能理解
-		s = s - dp[i+maxPts] + dp[i]
+		// 一开时就先把区间外的减去，也就是 i+w+1减去
+		// 因为这里在开始里就去减 dp[i+w+1]所以 dp 的长度就得是 i+w+1
+		s = s - dp[i+w+1]
+		dp[i] = s / float64(w)
+		s = s + dp[i]
 	}
+
 	return dp[0]
 }
