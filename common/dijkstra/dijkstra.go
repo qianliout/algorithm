@@ -7,91 +7,51 @@ import (
 
 // https://leetcode.cn/problems/reachable-nodes-in-subdivided-graph/description/
 
-func reachableNodes(edges [][]int, maxMoves int, n int) int {
-	g := make([][]neighbor, n)
-	for _, ch := range edges {
-		x, y, z := ch[0], ch[1], ch[2]+1
-		g[x] = append(g[x], neighbor{y, z})
-		g[y] = append(g[y], neighbor{x, z})
-	}
-	dist := dijkstra(g, 0, n-1)
-	ans := 0
-	for _, d := range dist {
-		if d <= maxMoves {
-			ans++
-		}
-	}
-	for _, ch := range edges {
-		x, y, z := ch[0], ch[1], ch[2]
-		a := max(maxMoves-dist[x], 0)
-		b := max(maxMoves-dist[y], 0)
-		ans += min(a+b, z)
-	}
-	return ans
-}
-
 type neighbor struct {
 	x, d int
 }
 
 func dijkstra(g [][]neighbor, start int, end int) []int {
 	inf := math.MaxInt
-	hp := make(PriorityQueue, 0)
-	heap.Push(&hp, &IntItem{Value: 0, Priority: 0})
+	hp := make(MinHeap, 0)
+	heap.Push(&hp, Item{X: 0, D: 0})
 	dis := make([]int, end+1)
 	for i := range dis {
 		dis[i] = inf
 	}
 	dis[start] = 0
 	for hp.Len() > 0 {
-		po := heap.Pop(&hp).(*IntItem)
-		for _, next := range g[po.Value] {
-			newDis := dis[po.Value] + next.d
+		po := heap.Pop(&hp).(Item)
+		for _, next := range g[po.X] {
+			newDis := dis[po.D] + next.d
 			if dis[next.x] > newDis {
 				dis[next.x] = newDis
-				heap.Push(&hp, &IntItem{Value: next.x, Priority: newDis})
+				heap.Push(&hp, Item{X: next.x, D: newDis})
 			}
 		}
 	}
 	return dis
 }
 
-type IntItem struct {
-	Value    int // The Key of the item; arbitrary.
-	Priority int // The Priority of the item in the queue.
-	// The index is needed by update and is maintained by the heap.Interface methods.
-	index int // The index of the item in the heap.
+type Item struct {
+	X int
+	D int
 }
 
-// A PriorityQueue implements heap.Interface and holds Items.
-type PriorityQueue []*IntItem
+type MinHeap []Item
 
-func (pq PriorityQueue) Len() int { return len(pq) }
+func (h MinHeap) Len() int           { return len(h) }
+func (h MinHeap) Less(i, j int) bool { return h[i].D < h[j].D }
+func (h MinHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
-func (pq PriorityQueue) Less(i, j int) bool {
-	// We want Pop to give us the highest, not lowest, Priority so we use greater than here.
-	return pq[i].Priority < pq[j].Priority
+func (h *MinHeap) Push(x interface{}) {
+	*h = append(*h, x.(Item))
 }
 
-func (pq PriorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-	pq[i].index = i
-	pq[j].index = j
-}
-
-func (pq *PriorityQueue) Push(x interface{}) {
-	n := len(*pq)
-	item := x.(*IntItem)
-	item.index = n
-	*pq = append(*pq, item)
-}
-
-func (pq *PriorityQueue) Pop() interface{} {
-	old := *pq
+func (h *MinHeap) Pop() interface{} {
+	old := *h
 	n := len(old)
-	item := old[n-1]
-	old[n-1] = nil  // avoid memory leak
-	item.index = -1 // for safety
-	*pq = old[0 : n-1]
-	return item
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
 }
