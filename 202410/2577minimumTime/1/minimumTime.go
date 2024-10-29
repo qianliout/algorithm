@@ -50,7 +50,7 @@ func dijkstra(grid [][]int) int {
 				continue
 			}
 			nd := max(d+1, grid[nx][ny])
-			nd += (nd - nx - ny) % 2 // 可以通过反复横跳来等待时间，这样的话，nd 必须和 x+y 同奇偶
+			nd += (nd - nx - ny) % 2 // 可以通过反复横跳来等待时间，这样的话，nd 必须和 nx+ny 同奇偶
 			if nd < dis[nx][ny] {
 				dis[nx][ny] = nd
 				heap.Push(&hp, Item{X: nx, Y: ny, D: nd})
