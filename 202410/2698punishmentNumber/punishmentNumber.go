@@ -40,6 +40,7 @@ func check(n int, pre int, ss []byte) bool {
 		if check(n, pre, ss[i:]) {
 			return true
 		}
+		// 这一步的撤销操作容易出错
 		pre = pre - a
 	}
 	return false
