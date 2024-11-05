@@ -9,6 +9,7 @@ func main() {
 
 }
 
+// 类似合并区间的写法
 func numberOfGoodPartitions(nums []int) int {
 	m := make(map[int]pair)
 	for i, ch := range nums {
