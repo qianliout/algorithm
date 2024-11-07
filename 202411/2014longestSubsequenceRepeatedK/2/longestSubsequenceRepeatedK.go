@@ -86,5 +86,6 @@ func isSubsequenceRepeatedK(s, word string, k int) bool {
 func main() {
 	s := "babbbaabbabab"
 	k := 2
-	fmt.Println(longestSubsequenceRepeatedK(s, k)) // 输出: "babab"
+	fmt.Println(longestSubsequenceRepeatedK(s, k))        // 输出: "babab"
+	fmt.Println(longestSubsequenceRepeatedK("abcacb", k)) // 输出: "ac"
 }

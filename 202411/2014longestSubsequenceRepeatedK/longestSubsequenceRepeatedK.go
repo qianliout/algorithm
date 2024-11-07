@@ -26,20 +26,28 @@ func longestSubsequenceRepeatedK(s string, k int) string {
 		hot.WriteString(strings.Repeat(string(ch), num[ch]/k))
 	}
 	ss := []byte(hot.String())
-	ans := ""
 	// 尝试所有可能的子序列
 	for i := len(ss); i > 0; i-- {
-		p := permutations(ss[:i])
+		ans := ""
+		p := permutations(ss, i)
 		for _, ch := range p {
-			if isSubsequenceRepeatedK(s, string(ch), k) {
-				if ans == "" || len(ans) < len(ch) || (len(ans) == len(ch) && ans < ch) {
+			if isSubsequenceRepeatedK(s, ch, k) {
+				// 这样直接返回也是对的
+				// return ch
+				if ans == "" || ans < ch {
 					ans = ch
 				}
 			}
 		}
+		// 为啥可以提前返回呢
+		// 1：i 是从大到小，如果这一次找到了，那么其他的 i 值的长度比这一次少，一定不是正确的答案
+		// 一定要提前返回，不然就会超时
+		if ans != "" {
+			return ans
+		}
 
 	}
-	return ans
+	return ""
 }
 
 // sortedKeys 返回 map 的键按字典顺序排序后的切片
@@ -54,18 +62,22 @@ func sortedKeys(m map[byte]int) []byte {
 	return keys
 }
 
-func permutations(arr []byte) []string {
+// 从arr 中选出 m 个数的组合
+func permutations(arr []byte, m int) []string {
 	n := len(arr)
 	ans := make([]string, 0)
 	visit := make([]bool, n)
 	var dfs func(path []byte)
 	dfs = func(path []byte) {
-		if len(path) >= n {
+		if len(path) >= m {
 			ans = append(ans, string(path))
 			return
 		}
 		for i := 0; i < n; i++ {
 			if visit[i] {
+				continue
+			}
+			if i > 0 && !visit[i-1] && arr[i] == arr[i-1] {
 				continue
 			}
 			visit[i] = true
@@ -74,7 +86,6 @@ func permutations(arr []byte) []string {
 			path = path[:len(path)-1]
 			visit[i] = false
 		}
-
 	}
 	dfs([]byte{})
 	return ans
