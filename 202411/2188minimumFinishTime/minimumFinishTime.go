@@ -38,6 +38,7 @@ func minimumFinishTime1(tires [][]int, changeTime int, numLaps int) int {
 func minimumFinishTime(tires [][]int, changeTime int, numLaps int) int {
 	// 根据题目的数据范围一个轮胎最多跑17圈，所以设置一个上限17
 	// 首先预处理出连续使用同一个轮胎跑 x 圈的最小耗时，记作 minSec[x]，这可以通过遍历每个轮胎计算出来。
+	// minSec[i] 表示只使用一种轮胎（不知道是那种轮胎），最少需要多少秒
 	minSec := make([]int, 18)
 	inf := 1 << 30
 	for i := range minSec {
@@ -59,6 +60,7 @@ func minimumFinishTime(tires [][]int, changeTime int, numLaps int) int {
 	for i := 1; i <= numLaps; i++ {
 		f[i] = inf
 		for j := 1; j <= 17 && j <= i; j++ {
+			// 当i==j时，也就是从第0个开始里，这里还是加了 changeTime 所以初值得用-changeTime
 			f[i] = min(f[i], changeTime+f[i-j]+minSec[j])
 		}
 	}
