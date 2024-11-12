@@ -64,9 +64,9 @@ func countHighestScoreNodes(parents []int) int {
 		if node == nil {
 			return
 		}
-		le := dfs1(node.Left)
-		ri := dfs1(node.Right)
-		remain := n - le - ri - 1
+		le := dfs1(node.Left)     // 左子树
+		ri := dfs1(node.Right)    // 右子树
+		remain := n - le - ri - 1 // 父子树
 		score := max(1, le) * max(1, remain) * max(1, ri)
 		if score == mx {
 			ans++
