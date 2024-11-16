@@ -13,11 +13,13 @@ func deleteDuplicates(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
 	}
-	dump := &ListNode{Next: head}
-	cur := head
-	for cur.Next != nil && cur.Next.Val == cur.Val {
-		cur = cur.Next
+	if head.Val != head.Next.Val {
+		head.Next = deleteDuplicates(head.Next)
+		return head
 	}
-	dump.Next = deleteDuplicates(cur.Next)
-	return dump.Next
+	v := head.Val
+	for head != nil && head.Val == v {
+		head = head.Next
+	}
+	return deleteDuplicates(head)
 }
