@@ -10,11 +10,9 @@ func main() {
 
 // 会超时
 func findWords(board [][]byte, words []string) []string {
-	tr := Constructor()
-	mx := 0
+	tr := make(map[string]bool)
 	for _, ch := range words {
-		tr.Insert(ch)
-		mx = max(mx, len(ch))
+		tr[ch] = true
 	}
 	dirs := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	var dfs func(i, j int)
@@ -25,135 +23,85 @@ func findWords(board [][]byte, words []string) []string {
 	for i := range visit {
 		visit[i] = make([]bool, n)
 	}
-	add := make(map[string]bool)
 	dfs = func(i, j int) {
-		if i < 0 || i >= m || j < 0 || j >= n || visit[i][j] {
+		s := string(word)
+		if len(s) > 10 {
 			return
 		}
-		if visit[i][j] {
-			return
-		}
-		if !tr.StartsWith(string(word)) {
-			return
-		}
-		// 一定要加入 word，然后进行判断，再进入到下一层
-		// 不然，只有一个字符的情况下，就不能获取到答案
-		word = append(word, board[i][j])
-		// 不能这样剪枝，因为 abc abcd 这种情况，如果只判断 abc，就无法判断 abcd
-		// if add[string(word)] {
-		// 	return
-		// }
-		if tr.Search(string(word)) {
-			if !add[string(word)] {
-				ans = append(ans, string(word))
-				add[string(word)] = true
-			}
+		if tr[s] {
+			delete(tr, s)
+			ans = append(ans, s)
+			// 这里不能 return ,因为abc abcd 如果直接返回了，那么就找不到 abcd
 		}
 
-		visit[i][j] = true
 		for _, dir := range dirs {
 			x, y := i+dir[0], j+dir[1]
+			if x < 0 || x >= m || y < 0 || y >= n || visit[x][y] {
+				continue
+			}
+			visit[x][y] = true
+			word = append(word, board[x][y])
 			dfs(x, y)
+			visit[x][y] = false
+			word = word[:len(word)-1]
 		}
-		word = word[:len(word)-1]
-		visit[i][j] = false
-
 	}
 	for i := range board {
 		for j := range board[i] {
+			word = append(word, board[i][j])
+			visit[i][j] = true
 			dfs(i, j)
+			visit[i][j] = false
+			word = word[:len(word)-1]
 		}
 	}
 	sort.Strings(ans)
 	return ans
 }
 
-type Node struct {
-	End   bool
-	Child []*Node
-}
-
-type Trie struct {
-	Root *Node
-}
-
-func Constructor() Trie {
-	return Trie{Root: &Node{}}
-}
-
-func (this *Trie) Insert(word string) {
-	var dfs func(node *Node, ss []byte, i int)
-	dfs = func(node *Node, ss []byte, i int) {
-		if i >= len(ss) {
-			node.End = true
-			return
-		}
-
-		if node.Child == nil {
-			node.Child = make([]*Node, 26)
-		}
-		idx := getIdx(ss[i])
-		if node.Child[idx] == nil {
-			node.Child[idx] = &Node{}
-		}
-		c := node.Child[idx]
-		dfs(c, ss, i+1)
-	}
-	dfs(this.Root, []byte(word), 0)
-}
-
-func (this *Trie) Search(word string) bool {
-	var dfs func(node *Node, ss []byte, i int) bool
-
-	dfs = func(node *Node, ss []byte, i int) bool {
-		if node == nil {
-			return false
-		}
-		if i >= len(ss) {
-			return node.End
-		}
-		idx := getIdx(ss[i])
-		if node.Child == nil || node.Child[idx] == nil {
-			return false
-		}
-		c := node.Child[idx]
-		return dfs(c, ss, i+1)
-	}
-	ans := dfs(this.Root, []byte(word), 0)
-	return ans
-}
-
-func (this *Trie) StartsWith(prefix string) bool {
-	var dfs func(node *Node, ss []byte, i int) bool
-
-	dfs = func(node *Node, ss []byte, i int) bool {
-		if node == nil {
-			return false
-		}
-		if i >= len(ss) {
-			return true
-		}
-		idx := getIdx(ss[i])
-		if node.Child == nil || node.Child[idx] == nil {
-			return false
-		}
-		c := node.Child[idx]
-		return dfs(c, ss, i+1)
-	}
-	ans := dfs(this.Root, []byte(prefix), 0)
-	return ans
-}
-
-func getIdx(s byte) int {
-	return int(s) - int('a')
-}
-
-// 只有小写字母
-
-func gen(m, n int) [][]bool {
+func exist(board [][]byte, word string) bool {
+	dirs := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+	var dfs func(i, j int) bool
+	m, n := len(board), len(board[0])
 	visit := make([][]bool, m)
 	for i := range visit {
 		visit[i] = make([]bool, n)
 	}
-	return visit
+	path := make([]byte, 0)
+	dfs = func(i, j int) bool {
+		s := string(path)
+		if len(s) > len(word) {
+			return false
+		}
+		if s == word {
+			return true
+		}
+
+		for _, dir := range dirs {
+			x, y := i+dir[0], j+dir[1]
+			if x < 0 || x >= m || y < 0 || y >= n || visit[x][y] {
+				continue
+			}
+			visit[x][y] = true
+			path = append(path, board[x][y])
+			if dfs(x, y) {
+				return true
+			}
+			visit[x][y] = false
+			path = path[:len(path)-1]
+		}
+		return false
+	}
+	for i := range board {
+		for j := range board[i] {
+			path = append(path, board[i][j])
+			visit[i][j] = true
+			if dfs(i, j) {
+				return true
+			}
+			visit[i][j] = false
+			path = path[:len(path)-1]
+		}
+	}
+	return false
 }
