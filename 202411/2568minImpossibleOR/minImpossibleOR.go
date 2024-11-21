@@ -25,3 +25,5 @@ func minImpossibleOR(nums []int) int {
 
 	return -1
 }
+
+// 由于 or 运算只能把二进制中的 0 变成 1（而无法反向操作），因此如果 2k 是可表达的，那么 nums 里一定存在 2k
