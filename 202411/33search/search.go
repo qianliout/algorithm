@@ -44,6 +44,10 @@ func search(nums []int, target int) int {
 			ri = mid - 1
 		}
 	}
+	// 检查最后结果是好习惯
+	if le < 0 || le >= n || nums[le] != target {
+		return -1
+	}
 	return le
 }
 
