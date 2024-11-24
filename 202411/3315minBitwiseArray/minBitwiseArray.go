@@ -6,7 +6,8 @@ import (
 
 func main() {
 	fmt.Println(minBitwiseArray([]int{2, 3, 5, 7})) // -1,1,4,3
-
+	fmt.Println(5 & (5 - 1))
+	fmt.Println(0 & (0 - 1))
 }
 
 func minBitwiseArray(nums []int) []int {

@@ -33,6 +33,7 @@ func maxRemovals(source string, pattern string, targetIndices []int) int {
 		if i < 0 {
 			return 0
 		}
+		//
 		if j < 0 {
 			ans := 0
 			for k := 0; k <= i; k++ {

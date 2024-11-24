@@ -13,7 +13,6 @@ func main() {
 type MedianFinder struct {
 	Mx MaxHeap // 左边
 	Mi MinHeap // 右边
-
 	// 左边最多比右边多一个
 }
 
@@ -27,10 +26,24 @@ func Constructor() MedianFinder {
 
 func (this *MedianFinder) AddNum(num int) {
 	heap.Push(&this.Mx, num)
-	if this.Mx.Len()-this.Mi.Len() > 1 {
-		pop := heap.Pop(&this.Mx).(int)
-		heap.Push(&this.Mi, pop)
+	// 维护
+	for {
+		has := false
+		if this.Mx.Len()-this.Mi.Len() > 1 {
+			pop := heap.Pop(&this.Mx).(int)
+			heap.Push(&this.Mi, pop)
+			has = true
+		}
+		if len(this.Mx) > 0 && len(this.Mi) > 0 && this.Mx[0] > this.Mi[0] {
+			pop := heap.Pop(&this.Mi).(int)
+			heap.Push(&this.Mx, pop)
+			has = true
+		}
+		if !has {
+			break
+		}
 	}
+
 }
 
 func (this *MedianFinder) FindMedian() float64 {
