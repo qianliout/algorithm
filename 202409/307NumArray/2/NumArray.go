@@ -99,7 +99,7 @@ func (s *SegmentTreeDynamic) pushDown(node *Node, leftNum, rightNum int) {
 
 /*
 
-Node: 定义了线段树的节点结构。
+Head: 定义了线段树的节点结构。
 SegmentTreeDynamic: 定义了线段树的结构体，包含根节点。
 NewSegmentTreeDynamic: 创建一个新的线段树实例。
 update: 更新指定区间的值。

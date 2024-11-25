@@ -75,7 +75,7 @@ func (s *SegTree) Do(rootId int, p *Pair) {
 		node.Todo.Add = (node.Todo.Add + p.Add) % s.MOD
 	}
 	// 因为传的是指针，所以最后可以不用再赋值
-	// s.Node[rootId] = node
+	// s.Head[rootId] = node
 }
 
 func (s *SegTree) PushDown(rootId int) {
@@ -87,7 +87,7 @@ func (s *SegTree) PushDown(rootId int) {
 	s.Do(rootId<<1|1, v)
 	s.Node[rootId].Todo.Add = 0
 	s.Node[rootId].Todo.Mul = 1
-	// s.Node[rootId].Todo = InitTodo()
+	// s.Head[rootId].Todo = InitTodo()
 }
 
 func (s *SegTree) Build(a []int, rootId, l, r int) {

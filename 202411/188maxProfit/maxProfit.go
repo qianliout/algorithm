@@ -1,5 +1,9 @@
 package main
 
+import (
+	"strings"
+)
+
 func main() {
 
 }
@@ -35,3 +39,7 @@ func maxProfit(k int, prices []int) int {
 }
 
 // 设计一个算法来计算你所能获取的最大利润。你最多可以完成 k笔 交易。
+
+func strStr(haystack string, needle string) int {
+	return strings.Index(haystack, needle)
+}

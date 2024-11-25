@@ -51,7 +51,7 @@ func (s *SegTree) Build(rootId, l, r int) {
 	s.Node[rootId].Right = r
 	if l == r {
 		// 初值不能是1，只能是0，因为这是值域dp,如果 nums 中没有 rootId,那么初值就是0
-		// s.Node[rootId].Max = 1 // 初始值是
+		// s.Head[rootId].Max = 1 // 初始值是
 		return
 	}
 	mid := (l + r) >> 1

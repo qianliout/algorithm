@@ -53,7 +53,7 @@ func (s *SegTree) MergeInfo(a, b Data) Data {
 }
 
 // 这个方法是最难理解的，从这个方法可以理解 Todo 的含义，如果没有todo,那么在更新时就需要更新全部区间，
-// todo记录的是子区间还没有影响到的值，也就是说：s.Node[rootId].Value 需要保持最新,s.Node[rootId].Todo，是 rootId对应的子区间还没有更新的值
+// todo记录的是子区间还没有影响到的值，也就是说：s.Head[rootId].Value 需要保持最新,s.Head[rootId].Todo，是 rootId对应的子区间还没有更新的值
 // 所以 Do 函数的意义就是，把 rootId 上应该更新的值更新成最新的,并把 本次需要更新子区单的值记录到 todo 中
 
 func (s *SegTree) Do(rootId int, p Pair) {

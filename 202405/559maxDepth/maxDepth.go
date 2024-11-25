@@ -5,10 +5,10 @@ func main() {
 }
 
 /**
- * Definition for a Node.
- * type Node struct {
+ * Definition for a Head.
+ * type Head struct {
  *     Val int
- *     Children []*Node
+ *     Children []*Head
  * }
  */
 
