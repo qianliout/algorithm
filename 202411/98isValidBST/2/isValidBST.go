@@ -8,8 +8,10 @@ func main() {
 
 }
 
+// 相当于前序遍历
 func isValidBST(root *TreeNode) bool {
 	var dfs func(node *TreeNode, mx, mi *TreeNode) bool
+
 	dfs = func(node *TreeNode, mx, mi *TreeNode) bool {
 		if node == nil {
 			return true
@@ -24,5 +26,6 @@ func isValidBST(root *TreeNode) bool {
 		}
 		return dfs(node.Left, node, mi) && dfs(node.Right, mx, node)
 	}
+
 	return dfs(root, nil, nil)
 }
