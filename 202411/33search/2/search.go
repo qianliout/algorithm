@@ -1,11 +1,52 @@
 package main
 
-func main() {
+import (
+	"fmt"
+)
 
+func main() {
+	// fmt.Println(search([]int{4, 5, 6, 7, 0, 1, 2}, 0))
+	fmt.Println(search([]int{3, 1}, 1))
 }
 
 func search(nums []int, target int) int {
-	return 0
+	n := len(nums)
+	// 找出旋转点
+	le, ri := 0, n
+	for le < ri {
+		mid := le + (ri-le)/2
+		// 左端点
+		// 这里一定是小于 [3,1]
+		if mid >= 0 && mid < n && nums[mid] < nums[0] {
+			ri = mid
+		} else {
+			le = mid + 1
+		}
+	}
+	// 因为各值不相同
+	if target == nums[0] {
+		return 0
+	}
+	if target > nums[0] {
+		ri = le
+		le = 0
+	} else {
+		ri = n
+	}
+
+	for le < ri {
+		mid := le + (ri-le)/2
+		// 左端点写法
+		if mid >= 0 && mid < n && nums[mid] >= target {
+			ri = mid
+		} else {
+			le = mid + 1
+		}
+	}
+	if le < 0 || le >= n || nums[le] != target {
+		return -1
+	}
+	return le
 }
 
 // 整数数组 nums 按升序排列，数组中的值 互不相同 。
