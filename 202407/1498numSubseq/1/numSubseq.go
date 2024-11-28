@@ -8,6 +8,7 @@ import (
 
 func main() {
 	fmt.Println(numSubseq([]int{3, 5, 6, 7}, 9))
+	fmt.Println(numSubseq([]int{2, 3, 3, 4, 6, 7}, 12))
 }
 
 func numSubseq(nums []int, target int) int {
@@ -26,7 +27,8 @@ func numSubseq(nums []int, target int) int {
 		if nums[le]+nums[ri] > target {
 			ri--
 		} else {
-			// nums[le]是必须选的，le 到 ri 之间地数可选不可选，le-ri 之间有（ri-le）个数，可选可不选的选法共有2^(ri-le-1)这么多个
+			// nums[le]是必须选的，le 到 ri 之间地数可选不可选，le-ri 之间有（ri-le）个数，
+			// 可选可不选的选法共有2^(ri-le-1)这么多个
 			ans = (ans + tem[ri-le]) % mod
 			le++
 		}
