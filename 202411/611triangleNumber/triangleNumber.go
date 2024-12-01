@@ -15,65 +15,20 @@ func triangleNumber(nums []int) int {
 
 	cnt := 0
 	for i := 0; i < n; i++ {
-		for j := i + 1; j < n; j++ {
-			// 找第三点
-			cnt += help(nums, i, j)
+		for j := i - 1; j >= 0; j-- {
+			le, ri := 0, j
+			for le < ri {
+				mid := le + (ri-le)/2
+				if mid >= 0 && mid < j && nums[mid]+nums[j] > nums[i] {
+					ri = mid
+				} else {
+					le = mid + 1
+				}
+			}
+			if le >= 0 && le < j && nums[le]+nums[j] > nums[i] {
+				cnt += max(0, j-le)
+			}
 		}
 	}
 	return cnt
-}
-
-func help(nums []int, i, j int) int {
-	n := len(nums)
-	le, ri := 0, n
-	for le < ri {
-		mid := le + (ri-le)/2
-		// 找左端点
-		if mid >= 0 && mid < n && nums[i]+nums[j] > nums[mid] {
-			ri = mid
-		} else {
-			le = mid + 1
-		}
-	}
-
-	lo := le
-	le, ri = 0, n
-	for le < ri {
-		mid := le + (ri-le+1)/2
-		// 找右端点
-		if mid > 0 && mid < n && nums[i]+nums[j] > nums[mid] {
-			le = mid
-		} else {
-			ri = mid - 1
-		}
-	}
-
-	return max(0, le-lo+1)
-}
-
-func help2(nums []int, i, j int) int {
-	n := len(nums)
-	le, ri := j+1, n
-	for le < ri {
-		mid := le + (ri-le)/2
-		// 这样写是不可以的，得好好理解本质
-		if mid >= j+1 && mid < n && nums[i]+nums[j] > nums[mid] {
-			ri = mid
-		} else {
-			le = mid + 1
-		}
-	}
-
-	lo := le
-	le, ri = j+1, n
-	for le < ri {
-		mid := le + (ri-le+1)/2
-		if mid >= j+1 && mid < n && nums[i]+nums[j] > nums[mid] {
-			le = mid
-		} else {
-			ri = mid - 1
-		}
-	}
-
-	return max(0, le-lo+1)
 }

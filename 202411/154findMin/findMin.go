@@ -11,23 +11,19 @@ func main() {
 
 func findMin(nums []int) int {
 	n := len(nums)
-	le, ri := 0, n-1
-	for le < ri {
-		if ri < n && nums[ri] == nums[le] {
-			ri--
-			continue
-		}
-		mid := le + (ri-le)/2
-		if mid >= 0 && mid < n && nums[mid] <= nums[0] {
-			ri = mid
+	left, right := 0, n
+
+	for left < right {
+		mid := left + (right-left)/2
+		if nums[mid] > nums[right] {
+			left = mid + 1
+		} else if nums[mid] < nums[right] {
+			right = mid
 		} else {
-			le = mid + 1
+			right = right - 1
 		}
 	}
-	if le < 0 || le >= n {
-		return nums[0]
-	}
-	return nums[le]
+	return nums[left]
 }
 
 func findMin2(nums []int) int {
