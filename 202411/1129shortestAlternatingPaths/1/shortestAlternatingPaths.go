@@ -19,10 +19,12 @@ func shortestAlternatingPaths(n int, redEdges [][]int, blueEdges [][]int) []int 
 
 	queue := make([]node, 0)
 	queue = append(queue, node{0, "red"}, node{0, "blue"})
+
 	dis := make([]int, n)
 	for i := range dis {
 		dis[i] = -1
 	}
+
 	redVisit := make([]bool, n)
 	blueVisit := make([]bool, n)
 
@@ -33,6 +35,7 @@ func shortestAlternatingPaths(n int, redEdges [][]int, blueEdges [][]int) []int 
 
 	for len(queue) > 0 {
 		lev := make([]node, 0)
+
 		for _, no := range queue {
 			if dis[no.idx] < 0 {
 				dis[no.idx] = level
@@ -58,5 +61,5 @@ func shortestAlternatingPaths(n int, redEdges [][]int, blueEdges [][]int) []int 
 
 type node struct {
 	idx   int    // idx
-	color string // 出站的颜色
+	color string // 出边的颜色
 }
