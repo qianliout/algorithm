@@ -17,6 +17,8 @@ func equationsPossible(equations []string) bool {
 	for i, ch := range equations {
 		p := gen(ch)
 		ss[i] = p
+		uf.Union(p.a, p.a)
+		uf.Union(p.b, p.b)
 		if p.eq {
 			uf.Union(p.a, p.b)
 		}
@@ -25,7 +27,7 @@ func equationsPossible(equations []string) bool {
 		if ch.eq && !uf.IsConnected(ch.a, ch.b) {
 			return false
 		}
-		if !ch.eq && (uf.IsConnected(ch.a, ch.b) || (uf.Find(ch.a) == "" || uf.Find(ch.b) == "")) {
+		if !ch.eq && uf.IsConnected(ch.a, ch.b) {
 			return false
 		}
 	}
