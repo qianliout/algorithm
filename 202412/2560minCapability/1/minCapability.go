@@ -27,7 +27,7 @@ func minCapability(nums []int, k int) int {
 	return -1
 }
 
-// 贪心的写法，但是到底对不对，没有想明白
+// 贪心的写法，能偷就尽快偷 但是到底对不对，没有想明白
 func check(nums []int, mid int, k int) bool {
 	cnt := 0
 	i := 0
