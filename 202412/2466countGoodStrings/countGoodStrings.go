@@ -7,9 +7,7 @@ import (
 func main() {
 
 }
-
 func countGoodStrings(low int, high int, zero int, one int) int {
-	mod := int(math.Pow10(9)) + 7
 	f := make([]int, high+1)
 	f[0] = 1
 	for i := 1; i <= high; i++ {
@@ -19,13 +17,11 @@ func countGoodStrings(low int, high int, zero int, one int) int {
 		if i >= one {
 			f[i] += f[i-one]
 		}
-		f[i] = f[i] % mod
 	}
-
+	mod := int(math.Pow10(9)) + 7
 	ans := 0
 	for i := low; i <= high; i++ {
-		ans = ans + f[i]
-		ans = ans % mod
+		ans = (ans + f[i]) % mod
 	}
-	return ans % mod
+	return ans
 }
