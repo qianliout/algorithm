@@ -33,7 +33,7 @@ func change1(amount int, coins []int) int {
 	return ans
 }
 
-func change(amount int, coins []int) int {
+func change2(amount int, coins []int) int {
 	n := len(coins)
 	f := make([][]int, n+1)
 	for i := range f {
@@ -54,4 +54,28 @@ func change(amount int, coins []int) int {
 	}
 
 	return f[n][amount]
+}
+
+func change(amount int, coins []int) int {
+	f := make([]int, amount+1)
+	f[0] = 1
+	for _, x := range coins {
+		for c := 1; c <= amount; c++ {
+			if c >= x {
+				f[c] += f[c-x]
+			}
+		}
+	}
+	return f[amount]
+}
+
+func change3(amount int, coins []int) int {
+	f := make([]int, amount+1)
+	f[0] = 1
+	for _, x := range coins {
+		for c := x; c <= amount; c++ {
+			f[c] += f[c-x]
+		}
+	}
+	return f[amount]
 }
