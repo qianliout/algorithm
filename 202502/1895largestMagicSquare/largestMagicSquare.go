@@ -25,7 +25,7 @@ func largestMagicSquare(grid [][]int) int {
 
 func check(grid [][]int, startI, startJ int, k int) bool {
 	m, n := len(grid), len(grid[0])
-	if startI+k-1 > min(m, n)-1 || startJ+k-1 > min(m, n)-1 {
+	if startI+k-1 > m-1 || startJ+k-1 > n-1 {
 		return false
 	}
 	// 每一行、每一列以及两条对角线的和
@@ -49,10 +49,9 @@ func check(grid [][]int, startI, startJ int, k int) bool {
 		for i := startI; i < startI+k; i++ {
 			num += grid[i][j]
 		}
-		if pre != -1 && pre != num {
+		if pre != num {
 			return false
 		}
-		pre = num
 	}
 	// 对角线1
 	num := 0
@@ -60,15 +59,15 @@ func check(grid [][]int, startI, startJ int, k int) bool {
 		num += grid[i][j]
 	}
 
-	if pre != -1 && pre != num {
+	if pre != num {
 		return false
 	}
 	// 对角线2
 	num = 0
-	for i, j := startI, startJ+k-1; i < startI+k; i, j = i-1, j+1 {
+	for i, j := startI, startJ+k-1; i < startI+k; i, j = i+1, j-1 {
 		num += grid[i][j]
 	}
-	if pre != -1 && pre != num {
+	if pre != num {
 		return false
 	}
 	return true
