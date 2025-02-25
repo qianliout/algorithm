@@ -40,6 +40,7 @@ func (b *BIT) Build2(data []int) {
 	}
 }
 
+// 更新原 data[idx]=x
 func (b *BIT) Update(idx int, x int) {
 	delta := x - b.Data[idx]
 	i := idx + 1
@@ -49,16 +50,20 @@ func (b *BIT) Update(idx int, x int) {
 	}
 }
 
+// 求前缀和
 func (b *BIT) Pre(i int) int {
 	ans := 0
 	for i > 0 {
 		ans += b.Tree[i]
+		// i&(i-1) 是把一个数字最右边的1变成 0
 		// i = i & (i - 1) // 两种写法是一致的
-		i -= i & -i
+		// i -= i & -i
+		i = i - LowBit(i)
 	}
 	return ans
 }
 
+// 求区间和
 func (b *BIT) Query(l, r int) int {
 	return b.Pre(r+1) - b.Pre(l)
 }
