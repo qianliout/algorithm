@@ -14,34 +14,26 @@ func main() {
 
 func goodTriplets(nums1 []int, nums2 []int) int64 {
 	n := len(nums1)
-	bit1 := NewBIT(n + 3)
-	bit2 := NewBIT(n + 3)
-	for i := 0; i < n; i++ {
-		nums1[i] = nums1[i] + 1
-		nums2[i] = nums2[i] + 1
+	p := make([]int, n+1)
+	// 这么做是让 bit不要用0开始 从1开始
+	// for i := 0; i < n; i++ {
+	// 	nums1[i] = nums1[i] + 1
+	// 	nums2[i] = nums2[i] + 1
+	// }
+
+	for i, ch := range nums1 {
+		p[ch] = i
 	}
-	left := make([]int, n)
+	bit := NewBIT(n + 2)
 	ans := 0
-	for i := 0; i < n; i++ {
-		ch1, ch2 := nums1[i], nums2[i]
-		// 找小于的数字个数
-		left[i] = min(bit1.query(ch1-1), bit2.query(ch2-1))
-		bit1.update(ch1)
-		bit2.update(ch2)
+	for i := 1; i < n; i++ {
+		bit.update(p[nums2[i-1]])
+		y := p[nums2[i]]
+		less := bit.query(y)
+
+		ans += less * (n - 1 - y - (i - less))
 	}
-	bit1.reset()
-	bit2.reset()
-	right := make([]int, n)
-	for i := n - 1; i >= 0; i-- {
-		ch1, ch2 := nums1[i], nums2[i]
-		// 找大于的数字个数
-		a := bit1.query(n+1) - bit1.query(ch1)
-		b := bit2.query(n+1) - bit2.query(ch2)
-		right[i] = min(a, b)
-		ans += left[i] * min(a, b)
-		bit1.update(ch1)
-		bit2.update(ch2)
-	}
+
 	return int64(ans)
 }
 
@@ -81,4 +73,38 @@ func (b *BIT) query(idx int) int {
 
 func lowBit(n int) int {
 	return n & (-n)
+}
+
+// 这样解不符和题目的意思
+func goodTriplets2(nums1 []int, nums2 []int) int64 {
+	n := len(nums1)
+	bit1 := NewBIT(n + 3)
+	bit2 := NewBIT(n + 3)
+	for i := 0; i < n; i++ {
+		nums1[i] = nums1[i] + 1
+		nums2[i] = nums2[i] + 1
+	}
+	left := make([]int, n)
+	ans := 0
+	for i := 0; i < n; i++ {
+		ch1, ch2 := nums1[i], nums2[i]
+		// 找小于的数字个数
+		left[i] = min(bit1.query(ch1-1), bit2.query(ch2-1))
+		bit1.update(ch1)
+		bit2.update(ch2)
+	}
+	bit1.reset()
+	bit2.reset()
+	right := make([]int, n)
+	for i := n - 1; i >= 0; i-- {
+		ch1, ch2 := nums1[i], nums2[i]
+		// 找大于的数字个数
+		a := bit1.query(n+1) - bit1.query(ch1)
+		b := bit2.query(n+1) - bit2.query(ch2)
+		right[i] = min(a, b)
+		ans += left[i] * min(a, b)
+		bit1.update(ch1)
+		bit2.update(ch2)
+	}
+	return int64(ans)
 }
