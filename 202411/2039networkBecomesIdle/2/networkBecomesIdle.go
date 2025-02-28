@@ -1,7 +1,9 @@
 package main
 
-func main() {
+import "fmt"
 
+func main() {
+	fmt.Println("hello word")
 }
 
 func networkBecomesIdle(edges [][]int, patience []int) int {
