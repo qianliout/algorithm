@@ -24,7 +24,7 @@ func reversePairs2(record []int) int {
 	return cnt
 }
 
-// 线段树
+// 树状树组
 func reversePairs(record []int) int {
 	ans := 0
 	n := len(record)
@@ -63,7 +63,7 @@ func NewBIT(n int) *BIT {
 
 // 值域更新
 // 这里是把Data[idx] 里的增加1,那么 Data[idx+1:]的数字都得加1
-// 因为是计算前缀和，所以线段树的idx要加1
+// 因为是计算前缀和，所以树状树组的idx要加1
 func (b *BIT) Update(idx int) {
 	idx = idx + 1
 
