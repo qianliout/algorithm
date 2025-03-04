@@ -3,16 +3,24 @@ package main
 import "fmt"
 
 func main() {
-	// b := Constructor(4, 5)
-	// fmt.Println(b.Scatter(6, 2))
-	// fmt.Println(b.Gather(6, 3))
-	// fmt.Println(b.Scatter(9, 1))
+	b := Constructor(4, 5)
+	fmt.Println(b.Scatter(6, 2))
+	fmt.Println(b.Gather(6, 3))
+	fmt.Println(b.Scatter(9, 1))
 
 	b2 := Constructor(2, 5)
 	fmt.Println(b2.Gather(4, 0))
 	fmt.Println(b2.Gather(2, 0))
 	fmt.Println(b2.Scatter(5, 1))
 	fmt.Println(b2.Scatter(5, 1))
+
+	b3 := Constructor(5, 9)
+	b3.Gather(10, 1)
+	b3.Scatter(3, 3)
+	b3.Gather(9, 1)
+	b3.Gather(10, 2)
+	fmt.Println(b3.Gather(2, 2))
+
 }
 
 type BookMyShow struct {
@@ -79,7 +87,7 @@ func (s SegmentTree) build(o int, l, r int) {
 	}
 	m := (l + r) / 2
 	s.build(o<<1, l, m)
-	s.build(o<<1|1, m+1, r)
+	s.build(o*2+1, m+1, r)
 }
 
 // 单点更新
@@ -96,32 +104,36 @@ func (s SegmentTree) update(o int, idx, add int) {
 		s.update(o<<1, idx, add)
 	}
 	if idx >= m+1 {
-		s.update(o<<1+1, idx, add)
+		s.update(o*2+1, idx, add)
 	}
+
+	le, ri := s[o<<1], s[o*2+1]
+	s[o].Mi = min(le.Mi, ri.Mi)
+	s[o].Sum = le.Sum + ri.Sum
 }
 
-// 找 [0:r]内小于等 vl 的最小小标 (包括 r)
+// 找 [0:r]内小于等于vl 的最小下标 (包括 r)
 func (s SegmentTree) findFirst(o int, r int, al int) int {
 	seg := s[o]
 	if seg.Mi > al {
 		return -1
 	}
 	if seg.left == seg.right {
-		return seg.Sum
+		return seg.left
 	}
 
 	m := (seg.left + seg.right) / 2
 	// 先找左边
 	// 因为规范是从0开始，所以左边一定在区间内，可以不用判断
-	if s[o<<1].Mi <= al {
-		return s.findFirst(o<<1, r, al)
-	}
-	// a := s.findFirst(o<<1, r, al)
-	// if a >= 0 {
-	// 	return a
+	// if s[o<<1].Mi <= al {
+	// 	return s.findFirst(o<<1, r, al)
 	// }
+	a := s.findFirst(o<<1, r, al)
+	if a >= 0 {
+		return a
+	}
 	if r >= m+1 {
-		b := s.findFirst(o<<1+1, r, al)
+		b := s.findFirst(o*2+1, r, al)
 		if b >= 0 {
 			return b
 		}
@@ -131,16 +143,16 @@ func (s SegmentTree) findFirst(o int, r int, al int) int {
 
 func (s SegmentTree) querySum(o int, l, r int) int {
 	seg := s[o]
-	if l <= seg.left && r <= seg.right {
+	if l <= seg.left && r >= seg.right {
 		return seg.Sum
 	}
 	m := (seg.left + seg.right) / 2
 	sum := 0
 	if l <= m {
-		sum += s.querySum(o<<1, l, m)
+		sum += s.querySum(o<<1, l, r)
 	}
 	if r >= m+1 {
-		sum += s.querySum(o<<1|1, m+1, r)
+		sum += s.querySum(o*2+1, l, r)
 	}
-	return m
+	return sum
 }
