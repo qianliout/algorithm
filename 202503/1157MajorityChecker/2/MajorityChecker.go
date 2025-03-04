@@ -12,44 +12,6 @@ func main() {
 	fmt.Println(mc.Query(2, 3, 2))
 }
 
-// func (st *SegmentTree) query(o int, L, R int) *segment {
-// 	sg := st.tree[o]
-// 	if L <= sg.left && R >= sg.right {
-// 		return sg
-// 	}
-// 	m := (sg.left + sg.right) / 2
-// 	var (
-// 		le *segment
-// 		ri *segment
-// 	)
-// 	if L <= m {
-// 		le = st.query(o<<1, L, R)
-// 	}
-// 	if R >= m+1 {
-// 		ri = st.query(o<<1|1, L, R)
-// 	}
-// 	if le == nil && ri == nil {
-// 		return nil
-// 	}
-// 	if le == nil {
-// 		return ri
-// 	}
-// 	if ri == nil {
-// 		return le
-// 	}
-//
-// 	if le.x == ri.x {
-// 		le.cnt += ri.cnt
-// 		return le
-// 	}
-// 	if le.cnt >= ri.cnt {
-// 		le.cnt -= ri.cnt
-// 		return le
-// 	}
-// 	ri.cnt -= le.cnt
-// 	return ri
-// }
-
 type MajorityChecker struct {
 	tree SegmentTree
 	d    map[int][]int
