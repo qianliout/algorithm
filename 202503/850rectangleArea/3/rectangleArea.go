@@ -111,6 +111,7 @@ func (st *segmentTree) do(root, v int) {
 func (st *segmentTree) pushUp(root int) {
 	sg, le, ri := st.tree[root], st.tree[root<<1], st.tree[root<<1|1]
 	sg.yMinCover = min(le.yMinCover, ri.yMinCover)
+	// 因为 sg.yMinCover 变动了，所以这里的 sg.xMinCoverLen和重新算
 	sg.xMinCoverLen = 0 // 这里不赋值成0是不可以的
 	if le.yMinCover == sg.yMinCover {
 		sg.xMinCoverLen += le.xMinCoverLen
