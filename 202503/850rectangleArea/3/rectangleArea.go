@@ -80,7 +80,7 @@ func (st *segmentTree) build(root int, le, ri int) {
 	sg.right = ri
 	if sg.left == sg.right {
 		// 此时只是求的 x 方向上区间，y方向还没有开始扫描
-		sg.yMinCover = 0 // 这里为啥是0，没有能理解
+		sg.yMinCover = 0
 		sg.xMinCoverLen = st.xs[le+1] - st.xs[le]
 		return
 	}
