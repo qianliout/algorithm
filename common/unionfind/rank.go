@@ -11,21 +11,13 @@ func NewRankUnionFind(totalNodes int) *RankUnionFind {
 	r := make([]int, totalNodes)
 	for i := 0; i < totalNodes; i++ {
 		p[i] = i
-		r[i] = 1
 	}
 	return &RankUnionFind{Parent: p, Rank: r, Count: totalNodes}
 }
 
 func (u *RankUnionFind) Find(x int) int {
 	if u.Parent[x] != x {
-		// 路径压缩
-		// 这是为了进行路径压缩（path compression），具体有以下好处：
-		// 加速后续查找：通过将当前节点直接连接到查询得到的根节点上，减少了后续对该节点及其子节点进行查找时的层级深度，从而加快了下一次查找的速度。
-		// 优化性能：在不增加额外操作复杂度的前提下，通过对路径上的每个节点进行修改，使得树形结构更加扁平化，进而提升了整个并查集结构的效率。
-		u.Parent[x] = u.Find(u.Parent[x])
-
-		// 当然也可以在查询过程中不修改数据
-		// return u.Find(u.Parent[x])
+		u.Parent[x] = u.Find(u.Parent[x]) // 路径压缩
 	}
 	return u.Parent[x]
 }
@@ -36,10 +28,13 @@ func (u *RankUnionFind) Union(x, y int) {
 
 	if xRoot != yRoot {
 		u.Count--
-		if u.Rank[xRoot] > u.Rank[yRoot] {
-			u.Parent[yRoot] = xRoot
-		} else if u.Rank[xRoot] < u.Rank[yRoot] {
+		// 在并查集的按秩合并（rank union）中，只有当两个集合的秩（rank）相等时，合并后根节点的秩才需要加一（即u.Rank[xRoot]++）。
+		// 如果u.Rank[xRoot] < u.Rank[yRoot]或u.Rank[xRoot] > u.Rank[yRoot]，较小秩的树直接挂到较大秩的树下，不会改变较大树的高度，所以不需要更新rank。
+		// 只有秩相等时，合并会导致树高加一，这时才需要更新rank
+		if u.Rank[xRoot] < u.Rank[yRoot] {
 			u.Parent[xRoot] = yRoot
+		} else if u.Rank[xRoot] > u.Rank[yRoot] {
+			u.Parent[yRoot] = xRoot
 		} else {
 			u.Parent[yRoot] = xRoot
 			u.Rank[xRoot]++

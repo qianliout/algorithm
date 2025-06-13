@@ -18,10 +18,7 @@ func NewSizeUnionFind(totalNodes int) *SizeUnionFind {
 
 func (u *SizeUnionFind) Find(x int) int {
 	if u.Parent[x] != x {
-		// 路径压缩
-		// u.Parent[x] = u.Find(u.Parent[x])
-		// 如果在查询中不修改数据
-		return u.Find(u.Parent[x])
+		u.Parent[x] = u.Find(u.Parent[x]) // 路径压缩
 	}
 	return u.Parent[x]
 }
@@ -30,13 +27,13 @@ func (u *SizeUnionFind) Union(x, y int) {
 	xRoot := u.Find(x)
 	yRoot := u.Find(y)
 	if xRoot != yRoot {
-
 		u.Count--
 		if u.Size[xRoot] > u.Size[yRoot] {
-			u.Union(y, x)
+			u.Parent[yRoot] = xRoot
+			u.Size[xRoot] += u.Size[yRoot]
 		} else {
+			u.Parent[xRoot] = yRoot
 			u.Size[yRoot] += u.Size[xRoot]
-			u.Parent[xRoot] = u.Parent[yRoot]
 		}
 	}
 }
