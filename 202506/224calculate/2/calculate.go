@@ -77,7 +77,7 @@ func calculate1(s string) int {
 			nums = nums[:len(nums)-1]
 			op, num = 1, 0
 		default:
-			num = num*10 + int('c') - int('0')
+			num = num*10 + int(c) - int('0')
 		}
 	}
 	return ans + op*num
