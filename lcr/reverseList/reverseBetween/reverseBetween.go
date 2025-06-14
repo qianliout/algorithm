@@ -13,7 +13,7 @@ func reverseBetween(head *ListNode, left int, right int) *ListNode {
 		head.Next = reverseBetween(head.Next, left-1, right-1)
 		return head
 	}
-	// find right.Next Node
+	// find right.Next Root
 	end := head
 	// 题目保证了 right 在链表长度内
 	for right > 0 && end != nil {
