@@ -46,3 +46,30 @@ func cac(edges []int, start int) []int {
 	}
 	return dis
 }
+
+func closestMeetingNode2(edges []int, x int, y int) int {
+	n := len(edges)
+	ans := n
+	visitX, visitY := make([]bool, n), make([]bool, n)
+	for !visitX[x] && !visitY[y] {
+
+		visitX[x] = true
+		visitY[y] = true
+		if visitX[y] {
+			ans = min(ans, y)
+		}
+		if visitY[x] {
+			ans = min(ans, x)
+		}
+		if ans < n {
+			return ans
+		}
+		if edges[x] != -1 {
+			x = edges[x]
+		}
+		if edges[y] != -1 {
+			y = edges[y]
+		}
+	}
+	return -1
+}
