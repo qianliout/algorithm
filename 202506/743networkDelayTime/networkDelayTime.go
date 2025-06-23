@@ -35,6 +35,7 @@ func networkDelayTime(times [][]int, n int, k int) int {
 		if x == -1 {
 			break
 		}
+		// 可以在这里提前返回
 		// if dis[x] == inf {
 		// 	return -1 // 说明有节点不可达
 		// }
