@@ -40,9 +40,12 @@ func (b *BIT) Build2(data []int) {
 	}
 }
 
+//	面试时使用这种方式
+//
 // 更新原 data[idx]=x
 func (b *BIT) Update(idx int, x int) {
 	delta := x - b.Data[idx]
+	b.Data[idx] = x
 	i := idx + 1
 	for i < len(b.Tree) {
 		b.Tree[i] += delta
