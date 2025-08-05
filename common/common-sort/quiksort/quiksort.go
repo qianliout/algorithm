@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 )
 
 func main() {
@@ -50,4 +51,26 @@ func QuickSort(nums []int, low, high int) {
 	QuickSort(nums, low, pivot-1)
 	// 右边排序
 	QuickSort(nums, pivot+1, high)
+}
+
+func partition2(nums []int, left, right int) int {
+	if len(nums) <= 1 || left >= right {
+		return len(nums)
+	}
+	// 随机选择pivot，避免最坏情况（已排序数组）
+	pivotIndex := rand.Intn(right-left+1) + left
+	pivot := nums[pivotIndex]
+	// 将pivot移到数组末尾，方便后续处理
+	nums[right], nums[pivotIndex] = nums[pivotIndex], nums[right]
+	sortedInx := left
+	// 最后一个元素是 pivot,所以需要 i<right
+	for i := left; i < right; i++ {
+		ch := nums[i]
+		if ch < pivot {
+			nums[sortedInx], nums[i] = nums[i], nums[sortedInx]
+			sortedInx++
+		}
+	}
+	nums[sortedInx], nums[right] = nums[right], nums[sortedInx]
+	return sortedInx
 }
