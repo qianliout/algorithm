@@ -9,9 +9,6 @@ func main() {
 	fmt.Printf("Input: %v\n", nums)
 	fmt.Printf("LIS length: %d\n", lengthOfLIS(nums))
 	fmt.Printf("Number of LIS: %d\n", findNumberOfLIS(nums))
-
-	// 调试信息
-	debugFindNumberOfLIS(nums)
 }
 
 func lengthOfLIS(nums []int) int {
@@ -62,44 +59,7 @@ func findNumberOfLIS(nums []int) int {
 	return ans
 }
 
-func debugFindNumberOfLIS(nums []int) {
-	n := len(nums)
-	if n == 0 {
-		return
-	}
-
-	lengths := make([]int, n)
-	counts := make([]int, n)
-
-	for i := 0; i < n; i++ {
-		lengths[i] = 1
-		counts[i] = 1
-	}
-
-	maxLen := 1
-
-	for i := 1; i < n; i++ {
-		for j := 0; j < i; j++ {
-			if nums[j] < nums[i] {
-				if lengths[j]+1 > lengths[i] {
-					lengths[i] = lengths[j] + 1
-					counts[i] = counts[j]
-				} else if lengths[j]+1 == lengths[i] {
-					counts[i] += counts[j]
-				}
-			}
-		}
-		maxLen = max(maxLen, lengths[i])
-	}
-
-	fmt.Printf("lengths: %v\n", lengths)
-	fmt.Printf("counts:  %v\n", counts)
-	fmt.Printf("maxLen:  %d\n", maxLen)
-
-	// 打印以每个位置结尾的LIS信息
-	for i := 0; i < n; i++ {
-		if lengths[i] == maxLen {
-			fmt.Printf("Position %d (value=%d): length=%d, count=%d\n", i, nums[i], lengths[i], counts[i])
-		}
-	}
-}
+/*
+给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。
+子序列 是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，[3,6,2,7] 是数组 [0,3,1,6,2,2,7] 的子序列。
+*/
