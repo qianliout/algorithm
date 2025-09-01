@@ -49,6 +49,7 @@ func Merge(nums []int, mid int) {
 			// 如果当前元素已经大于等于前一个元素，说明找到了正确位置
 			if nums[j] >= nums[j-1] {
 				continue
+				// 不能使用break 比如[1,3,5]和[2,4] 使用break 会导致[1,3,5,2,4]
 			}
 			// 否则交换位置，继续向前比较
 			nums[j], nums[j-1] = nums[j-1], nums[j]
