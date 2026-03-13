@@ -26,7 +26,6 @@ func InitLinkedList(n int) *ListNode {
 	if n == 1 {
 		return &ListNode{0, nil}
 	}
-	fmt.Println("hello")
 
 	start := &ListNode{0, nil}
 	pre := start

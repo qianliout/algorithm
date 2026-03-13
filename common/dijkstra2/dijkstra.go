@@ -53,11 +53,12 @@ func dijkstra(g [][]neighbor, start int, end int) []int {
 		// 更新当前顶点的所有邻居的距离
 		for _, next := range g[minVertex] {
 			// 计算通过当前顶点到达邻居的新距离
-			newDis := dis[minVertex] + next.d
-			// 如果新距离更短，则更新距离
-			if dis[next.x] > newDis {
-				dis[next.x] = newDis
-			}
+			dis[next.x] = min(dis[next.x], dis[minDis]+next.d)
+			// newDis := dis[minVertex] + next.d
+			// // 如果新距离更短，则更新距离
+			// if dis[next.x] > newDis {
+			// 	dis[next.x] = newDis
+			// }
 		}
 	}
 

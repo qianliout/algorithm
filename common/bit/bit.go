@@ -1,5 +1,10 @@
 package bit
 
+// BIT 树状数组
+// 树状数组是一种可以动态维护序列前缀和的数据结构，支持在 O(logn) 的时间内单点修改、区间查询。
+// 树状数组的每个节点维护了原数组中一段连续的元素的和。
+// 树状数组的每个节点的下标 i 对应的原数组的下标范围是 [i−lowbit(i)+1,i]，其中 lowbit(i) 表示 i 的二进制表示中最低位的 1 以及后面所有 0 组成的数。
+// 例如，lowbit(6)=2，lowbit(10)=2，lowbit(12)=4。
 type BIT struct {
 	N    int
 	Data []int
@@ -49,7 +54,7 @@ func (b *BIT) Update(idx int, x int) {
 	i := idx + 1
 	for i < len(b.Tree) {
 		b.Tree[i] += delta
-		i += i & -i
+		i += LowBit(i)
 	}
 }
 

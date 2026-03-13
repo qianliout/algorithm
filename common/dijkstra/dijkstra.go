@@ -26,6 +26,7 @@ func dijkstra(g [][]neighbor, start int, end int) []int {
 			newDis := dis[po.D] + next.d
 			if dis[next.x] > newDis {
 				dis[next.x] = newDis
+				// 这里容易出错，只有当dis[next.x]大于newDis时，才需要push
 				heap.Push(&hp, Item{X: next.x, D: newDis})
 			}
 		}
