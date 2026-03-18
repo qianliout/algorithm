@@ -23,7 +23,7 @@ type clientConfig struct {
 func newClientConfig() clientConfig {
 	url := strings.TrimSpace(os.Getenv("MCP_URL"))
 	if url == "" {
-		url = "http://localhost:8081/mcp"
+		url = "http://localhost:9090/mcp"
 	}
 	return clientConfig{
 		URL:     url,
@@ -78,7 +78,7 @@ func main() {
 			return
 		}
 
-		inputs := []string{"A", "B", "C"}
+		inputs := []string{"client input A", "client input B", "client input C"}
 		for _, token := range inputs {
 			if err := ctx.Err(); err != nil {
 				_ = pw.CloseWithError(err)

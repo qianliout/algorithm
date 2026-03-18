@@ -68,7 +68,7 @@ func newServerConfig() serverConfig {
 
 	addr := strings.TrimSpace(os.Getenv("MCP_ADDR"))
 	if addr == "" {
-		addr = ":8081"
+		addr = ":9090"
 	}
 	return serverConfig{Addr: addr, TokenDelay: 200 * time.Millisecond}
 }
@@ -203,6 +203,7 @@ func mcpHandler(cfg serverConfig) http.HandlerFunc {
 					continue
 				}
 				clientContent.WriteString(token)
+				log.Printf("received client input id=%v token=%q", req.ID, token)
 
 				fromClient := JSONRPCNotification{
 					JSONRPC: "2.0",
