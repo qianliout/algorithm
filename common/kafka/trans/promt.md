@@ -1,0 +1,7 @@
+你是一个golang的高级工程师，也是一个kafka的专家
+我现在正在学习kafka的事务机制
+现在你需要写一个关于kafka事务机制的demo，包括producer和consumer
+我的kafka是使用的macbook上的docker运行的，docker-compose.yaml在/Users/liuqianli/work/docker/kafka这个目录下
+
+代码要求精简，主要用于学习
+
