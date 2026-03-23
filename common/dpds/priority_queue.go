@@ -1,127 +1,101 @@
 package dpds
 
-import (
-	"sync"
-)
+import "sync"
 
 type PriorityQueue struct {
 	mu    sync.Mutex
-	nodes []*taskNode
+	items []taskItem
+}
+
+type taskItem struct {
+	task     *Task
+	priority int
 }
 
 func NewPriorityQueue() *PriorityQueue {
-	return &PriorityQueue{
-		nodes: make([]*taskNode, 0),
-	}
+	return &PriorityQueue{items: make([]taskItem, 0)}
 }
 
 func (pq *PriorityQueue) Len() int {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
-	return len(pq.nodes)
-}
-
-func (pq *PriorityQueue) Swap(i, j int) {
-	pq.nodes[i], pq.nodes[j] = pq.nodes[j], pq.nodes[i]
-	pq.nodes[i].index = i
-	pq.nodes[j].index = j
+	return len(pq.items)
 }
 
 func (pq *PriorityQueue) Push(task *Task) {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
-
-	node := &taskNode{
-		task:     task,
-		priority: -task.Priority,
-		index:    len(pq.nodes),
-	}
-	pq.nodes = append(pq.nodes, node)
-	pq.bubbleUp(len(pq.nodes) - 1)
+	item := taskItem{task: task, priority: -task.Priority}
+	pq.items = append(pq.items, item)
+	pq.bubbleUp(len(pq.items) - 1)
 }
 
 func (pq *PriorityQueue) Pop() *Task {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
-
-	if len(pq.nodes) == 0 {
+	if len(pq.items) == 0 {
 		return nil
 	}
-
-	node := pq.nodes[0]
-	last := len(pq.nodes) - 1
-	pq.nodes[0] = pq.nodes[last]
-	pq.nodes[0].index = 0
-	pq.nodes = pq.nodes[:last]
-
-	if len(pq.nodes) > 0 {
+	item := pq.items[0]
+	last := len(pq.items) - 1
+	pq.items[0] = pq.items[last]
+	pq.items = pq.items[:last]
+	if len(pq.items) > 0 {
 		pq.bubbleDown(0)
 	}
-
-	return node.task
+	return item.task
 }
 
 func (pq *PriorityQueue) Remove(taskID string) {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
-
-	for i, node := range pq.nodes {
-		if node.task.ID == taskID {
-			pq.removeAt(i)
+	for i, item := range pq.items {
+		if item.task.ID == taskID {
+			last := len(pq.items) - 1
+			pq.items[i] = pq.items[last]
+			pq.items = pq.items[:last]
+			if i < len(pq.items) {
+				pq.bubbleUp(i)
+				pq.bubbleDown(i)
+			}
 			return
 		}
-	}
-}
-
-func (pq *PriorityQueue) removeAt(i int) {
-	last := len(pq.nodes) - 1
-	if i >= last {
-		pq.nodes = pq.nodes[:last]
-		return
-	}
-
-	pq.nodes[i] = pq.nodes[last]
-	pq.nodes[i].index = i
-	pq.nodes = pq.nodes[:last]
-
-	pq.bubbleUp(i)
-	pq.bubbleDown(i)
-}
-
-func (pq *PriorityQueue) bubbleUp(i int) {
-	for i > 0 {
-		parent := (i - 1) / 2
-		if pq.nodes[i].priority <= pq.nodes[parent].priority {
-			break
-		}
-		pq.Swap(i, parent)
-		i = parent
-	}
-}
-
-func (pq *PriorityQueue) bubbleDown(i int) {
-	length := len(pq.nodes)
-	for {
-		left := 2*i + 1
-		right := 2*i + 2
-		largest := i
-
-		if left < length && pq.nodes[left].priority > pq.nodes[largest].priority {
-			largest = left
-		}
-		if right < length && pq.nodes[right].priority > pq.nodes[largest].priority {
-			largest = right
-		}
-		if largest == i {
-			break
-		}
-		pq.Swap(i, largest)
-		i = largest
 	}
 }
 
 func (pq *PriorityQueue) IsEmpty() bool {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
-	return len(pq.nodes) == 0
+	return len(pq.items) == 0
+}
+
+func (pq *PriorityQueue) bubbleUp(i int) {
+	for i > 0 {
+		parent := (i - 1) / 2
+		if pq.items[i].priority <= pq.items[parent].priority {
+			break
+		}
+		pq.items[i], pq.items[parent] = pq.items[parent], pq.items[i]
+		i = parent
+	}
+}
+
+func (pq *PriorityQueue) bubbleDown(i int) {
+	n := len(pq.items)
+	for {
+		left := 2*i + 1
+		right := 2*i + 2
+		largest := i
+		if left < n && pq.items[left].priority > pq.items[largest].priority {
+			largest = left
+		}
+		if right < n && pq.items[right].priority > pq.items[largest].priority {
+			largest = right
+		}
+		if largest == i {
+			break
+		}
+		pq.items[i], pq.items[largest] = pq.items[largest], pq.items[i]
+		i = largest
+	}
 }

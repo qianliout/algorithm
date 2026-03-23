@@ -57,9 +57,3 @@ func (t *Task) GetStatus() TaskStatus {
 func (t *Task) setStatus(status TaskStatus) {
 	t.status.Store(status)
 }
-
-type taskNode struct {
-	task     *Task
-	priority int
-	index    int
-}
