@@ -58,6 +58,153 @@ PENDING → READY → RUNNING → COMPLETED
 - **Atomic**：任务状态和计数器使用 `sync/atomic`
 - **Mutex**：仅在优先级堆和依赖图修改时使用
 
+## 调度流程详解（Scheduler）
+
+这一节按“数据结构 → 任务提交流 → 调度循环 → 依赖解锁 → 动态依赖”把 `scheduler.go` 的执行路径串起来，方便对照源码理解。
+
+### 关键数据结构
+
+- `tasks map[string]*Task`：任务注册表（`taskID -> task`），用于：
+  - 查询状态（`GetTaskStatus`）
+  - 在依赖解锁时检查依赖任务是否已完成
+- `depGraph *DependencyGraph`：依赖关系图（DAG）
+  - `dependencies[task] = [dep1, dep2...]`：task 依赖谁
+  - `dependents[dep] = [task1, task2...]`：谁依赖 dep
+- `readyQueue *PriorityQueue`：就绪队列（优先级堆），只存可以立即运行的任务
+  - 实现上把 `priority` 存成 `-task.Priority`，从而让 `Priority=0`（最高）先出队
+- `maxConcurrent / runningCount`：并发控制
+  - `schedule()` 在 `runningCount < maxConcurrent` 时持续出队并启动任务
+
+### 生命周期总览
+
+```
+Submit() -> taskChan -> enqueueTask() -> schedule() -> startTask()
+                                           |
+                                           v
+                                      handleTaskDone()
+                                           |
+                                           v
+                           checkAndReady(dependent) -> schedule()
+```
+
+### 任务提交：Submit()
+
+`Submit(task)` 做三件事：
+
+1. 校验：task.ID 不能为空
+2. 注册：写入 `tasks[task.ID] = task`
+3. 建边：对 `task.Dependencies` 循环 `depGraph.AddDependency(task.ID, depID)`
+4. 投递：把任务写入 `taskChan`，交给调度协程异步处理
+
+为什么要 `taskChan`：
+- 把“入队/触发调度”集中在一个调度循环里处理，让提交方不直接操作队列（更容易收敛并发点）。
+
+### 调度主循环：Start() / schedulerLoop()
+
+- `Start()` 启动一个 goroutine 执行 `schedulerLoop()`
+- `schedulerLoop()` 是一个无限循环：
+  - 收到 `taskChan` 的新任务 -> `enqueueTask(task)`
+  - 收到 `stopChan` -> 退出循环（Shutdown）
+
+### 入队判定：enqueueTask()
+
+`enqueueTask(task)` 的核心是决定“PENDING 还是 READY”：
+
+- 如果 `depGraph.HasDependencies(task.ID)` 为 true：说明存在前置依赖
+  - 任务状态设为 `PENDING`
+- 否则：没有依赖
+  - 任务状态设为 `READY`
+  - 推入 `readyQueue`
+
+无论走哪条分支，最后都会调用一次 `schedule()`，尝试尽快启动可运行的任务。
+
+### 调度决策：schedule()
+
+`schedule()` 的逻辑非常直接：只要还有并发槽位，就不断从 `readyQueue` 取任务启动。
+
+- 循环条件：`runningCount < maxConcurrent`
+- 从 `readyQueue.Pop()` 取一个 READY 任务
+  - 若为空：说明当前没有可运行任务，直接返回
+- 调用 `startTask(task)` 启动任务
+
+这也是“优先级调度”的真正发生点：`readyQueue.Pop()` 总是返回当前最高优先级任务。
+
+### 启动执行：startTask()
+
+`startTask(task)` 做三件事：
+
+1. 标记 `RUNNING`
+2. `runningCount++`（atomic）并 `waitGroup.Add(1)`
+3. 启 goroutine 执行 `TaskFunc`
+
+goroutine 的 defer 里负责收尾：
+
+- `handleTaskDone(taskID)`：更新状态、解锁依赖、触发下一轮调度
+- `waitGroup.Done()`：配合 `Shutdown()` 等待所有运行中任务退出
+
+### 任务完成：handleTaskDone()
+
+任务完成后会发生依赖解锁：
+
+1. `runningCount--`
+2. 将自己标记为 `COMPLETED`
+3. 查 `depGraph.GetDependents(taskID)`：取出所有“依赖我”的任务列表
+4. 对每个 dependent 调 `checkAndReady(dependentID)`
+5. 再调用一次 `schedule()`：如果有新 READY 的任务，就立即补满并发槽位
+
+### 依赖检查与解锁：checkAndReady()
+
+`checkAndReady(taskID)` 的目标是：把“依赖已满足”的 PENDING 任务推进 READY 队列。
+
+- 如果任务不存在或任务状态不是 `PENDING`：直接返回
+- 取依赖列表 `deps := depGraph.GetDependencies(taskID)`
+- 遍历 deps：
+  - 若任一依赖任务不存在，或依赖任务状态不是 `COMPLETED`：返回（依赖未满足）
+- 所有依赖都完成：
+  - 任务状态设为 `READY`
+  - 推入 `readyQueue`
+
+### 动态依赖：AddDependency / RemoveDependency
+
+#### AddDependency(taskID, dependsOnID)
+
+该 API 用来“运行前动态加依赖”，限制与处理要点：
+
+- 限制：不能给 `RUNNING / COMPLETED` 的任务加依赖（否则语义不一致）
+- 加边：`depGraph.AddDependency(taskID, dependsOnID)`（内部会做环检测）
+- 若任务当前是 `READY`：
+  - 需要把它从 `readyQueue` 移除
+  - 状态改回 `PENDING`（因为新依赖可能没完成）
+- 然后：
+  - `checkAndReady(taskID)`（如果新依赖其实已完成，会立刻回到 READY）
+  - `schedule()`（尝试启动）
+
+#### RemoveDependency(taskID, dependsOnID)
+
+- 移除边：`depGraph.RemoveDependency(...)`
+- 再次判断是否可以运行：`checkAndReady(taskID)`
+- `schedule()` 尝试启动
+
+### 一个最小例子（帮助你建立直觉）
+
+假设 `maxConcurrent=2`，任务依赖关系：
+
+- A：无依赖
+- B：依赖 A
+- C：无依赖
+
+那么调度一定满足：
+
+1. B 先进入 `PENDING`（因为依赖 A 未完成）
+2. A、C 进入 `READY`，被 `schedule()` 启动（最多同时 2 个）
+3. A 完成后，`handleTaskDone(A)` 会唤醒 `B`：
+   - `checkAndReady(B)` 发现 A 已 `COMPLETED`，将 B 推入 `readyQueue`
+4. 随后 `schedule()` 在并发槽位空出来时启动 B
+
+### 实现注意事项
+
+- `readyQueue` 与 `depGraph` 内部做了加锁，但 `tasks map` 在并发读写场景下需要额外保护（如果要在高并发生产环境使用，建议为 `tasks` 增加互斥或把对 `tasks` 的读写也收敛到同一协程/事件循环中）。
+
 ## 快速开始
 
 ```go
